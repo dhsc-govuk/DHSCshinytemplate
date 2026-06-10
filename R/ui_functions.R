@@ -11,11 +11,7 @@ top_nav_links <- function() {
       shinyGovstyle::service_navigation(
         links = c(
           "Landing Page" = "sn_landing",
-          "Summary Page" = "sn_summary",
-          "Life expectancy" = "sn_life_expectancy",
-          "Other charts" = "sn_other_charts",
-          "Example map" = "sn_uk_map",
-          "Definitions" = "sn_definition"
+          "Life Expectancy vs GDP" = "sn_life_exp_vs_gdpc"
         )
       )
     )
