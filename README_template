@@ -1,0 +1,60 @@
+
+# R Project Template
+
+A short description of your project
+
+## Usage
+
+
+
+### How users can get started (how to install, how to run)
+
+
+## Contents
+
+
+-   `R/app_server.R` - a script which runs the server logic of the RShiny dashboard.
+    This essentially runs the calculations of the dashboard.
+
+-   `R/app_ui.R` - this script covers the outputs and inputs seen by the end user.
+     It passes inputs to the server, which uses them to do calculations
+     and produce outputs, which it passes back to the ui to show to the user. 
+
+-   `./R`, `./input` and `./output` folders - store all code (except
+    `main.R`) in the `./R` folder, input data and settings in the
+    `./input` folder, and write any output from the analysis to the
+    `./output` folder. Input and ouput folders contain `.gitignore`
+    files which prevent their contents from being version controlled
+    (with the exception of `./input/config.yaml`).
+
+-   `./R/requirements.R` - use this script to install any packages that
+    your code requires. This makes the code more portable as a new user
+    of the analysis will have the required packages installed
+    automatically on running the code.
+
+
+
+-   `README.md` - this document (delete the current readme and replace it with this document),
+
+-   `.gitignore` - a git ignore file that prevents certain files being
+    version controlled. This will omit some standard files such as
+    `.RData`, `.Rhistory`, etc.
+
+-   `LICENSE.md` - default MIT license.
+
+
+## QA Status of the repo
+
+## Code of Conduct
+
+Please note that this project is released with a [Contributor Code of
+Conduct](https://dhsc-govuk-internal.github.io/user-guide.github.io/code-of-conduct.html).
+By contributing to this project, you agree to abide by its terms.
+
+## Licence
+
+Unless stated otherwise, the codebase is released under the MIT License.
+This covers both the codebase and any sample code in the documentation.
+The documentation is © Crown copyright and available under the terms of
+the [Open Government 3.0
+licence](https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/).

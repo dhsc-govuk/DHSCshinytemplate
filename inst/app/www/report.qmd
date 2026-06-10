@@ -1,0 +1,101 @@
+---
+title: "Demonstration report on `r {params$continent}`"
+format:
+  html:
+    embed-resources: true
+params:
+  continent: "All"
+execute: 
+  echo: false
+  message: false
+  warning: false
+---
+```{r}
+#| include: false
+
+library("dplyr")
+library("ggplot2")
+
+
+# Apply afcharts theme and scale defaults globally
+# Ensures consistent styling across all plots
+afcharts::use_afcharts()
+
+# setting a seed so our random choices come out the same every time.
+# set to today's date so we don't have hundreds of projects using seed 1 or 42.
+set.seed(20260309)
+
+# Print digits to 2 decimals
+options(digits = 2)
+
+
+
+# Load Gapminder dataset into local object
+# Used as the single data source across all tabs
+gap <- gapminder::gapminder
+
+if (params$continent != "All") {
+  gap <- gap |>
+    filter(continent == params$continent)
+}
+
+# filtering down to a number of countries that doesn't break the categorical palette.
+countries <- gap |>
+  distinct(country) |>
+  slice_sample(n = 4)
+```
+
+# Life expectancy over time
+
+To keep things relatively simple, we will limit ourselves to a sample of four countries within `r params$continent`.
+
+```{r}
+gap |>
+  # using a join as a filter
+  inner_join(countries, by = join_by("country")) |>
+  ggplot(aes(x = year, y = lifeExp, colour = country)) +
+  geom_line() +
+  labs(x = NULL,
+         y = "Life expectancy",
+         colour = "")
+  
+```
+
+# Relationship between GDP/capita and life expectancy
+
+We now use all countries in `r params$continent`.
+
+```{r}
+if (nrow(countries) == 4) {
+  gap |>
+    filter(year == max(year)) |>
+    ggplot(aes(x = gdpPercap, y = lifeExp)) +
+    geom_point() +
+    geom_smooth(method = "lm") +
+    scale_x_continuous(labels = scales::label_dollar()) +
+    labs(x = "GDP per capita",
+           y = "Life expectancy")
+} else {
+  # Oceania has two countries and it breaks the line of best fit.
+  gap |>
+    filter(year == max(year)) |>
+    ggplot(aes(x = gdpPercap, y = lifeExp)) +
+    geom_point() +
+    scale_x_continuous(labels = scales::label_dollar()) +
+    labs(x = "GDP per capita",
+           y = "Life expectancy")
+}
+```
+```{r}
+# generate the model the graph above uses, so we can do some automagical commentary
+model <- lm(lifeExp ~ gdpPercap, data = gap)
+
+# We'll use this one  a few times
+slope <- model$coefficients["gdpPercap"]
+pos_or_neg <- if_else(slope > 0, "positive", "negative")
+increase_or_decrease <- if_else(slope > 0, "increase", "decrease")
+```
+
+We see a `r pos_or_neg` relationship between GDP per capita and life expectancy in `r params$continent`.
+
+For each additional $1000 of GDP per capita, we see an `r increase_or_decrease` of `r abs(slope*1000)` years of life expectancy. 

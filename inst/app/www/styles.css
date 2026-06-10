@@ -1,0 +1,698 @@
+.section-nav-box {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: #ffffff;
+  padding: 12px;
+  overflow-x: hidden;
+}
+
+.section-nav-box .govuk-accordion__section-button {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.section-nav-box .govuk-accordion__controls,
+.section-nav-box .govuk-accordion__show-all,
+.section-nav-box .govuk-accordion__show-all-text {
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+/* GOV.UK header */
+header.govuk-header {
+  background-color: #0b9e8a !important;
+  padding-top: 8px !important;
+  padding-bottom: 0px !important;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+/* Main header row */
+header .govuk-header__container {
+  border-bottom: 0 !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 20px !important;
+  min-height: 0 !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: nowrap !important;
+  gap: 24px !important;
+}
+
+/* Left block: logo image + main title */
+.govuk-header__logo {
+  float: none !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* Clickable logo area */
+.govuk-header__logo .govuk-header__link--homepage {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  text-decoration: none !important;
+}
+
+/* Remove full-width hover/focus line from the whole header link */
+header.govuk-header .govuk-header__link--homepage,
+header.govuk-header .govuk-header__link--homepage:hover,
+header.govuk-header .govuk-header__link--homepage:focus,
+header.govuk-header .govuk-header__link--homepage:active {
+  text-decoration: none !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Image + main title */
+.govuk-header__logotype {
+  display: inline-flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  gap: 48px !important;
+}
+
+/* Main title text */
+.govuk-header__logotype-text {
+  display: inline-block !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+
+/* Logo image */
+.govuk-header__logo img {
+  height: 34px !important;
+  width: auto !important;
+  display: block !important;
+}
+
+/* Secondary title on the right */
+.govuk-header__content {
+  float: none !important;
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  white-space: nowrap !important;
+  text-align: right !important;
+}
+
+/* Secondary title text */
+.govuk-header__content > * {
+  margin: 0 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+}
+
+/* Header text colour */
+header.govuk-header a,
+.govuk-header__link,
+.govuk-header__logotype-text,
+.govuk-header__product-name {
+  color: #ffffff !important;
+  white-space: nowrap !important;
+}
+
+
+
+
+@media (max-width: 768px) {
+  header .govuk-header__container {
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    padding: 8px 16px !important;
+  }
+
+  .govuk-header__logo {
+    flex: 1 1 100% !important;
+  }
+
+  .govuk-header__logo .govuk-header__link--homepage {
+    width: 100% !important;
+  }
+
+  .govuk-header__logotype {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+    white-space: normal !important;
+  }
+
+  .govuk-header__logotype-text {
+    white-space: normal !important;
+    font-size: 20px !important;
+  }
+
+  .govuk-header__content {
+    flex: 1 1 100% !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+  }
+}
+
+
+
+
+/* Reduce the padding below the banner before the main content */
+.govuk-main-wrapper {
+  margin-top: 0px;
+  padding-top: 20px;
+}
+
+/* Align grid with the banner edges */
+.govuk-width-container {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.layout-grid {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  width: 100%;
+}
+
+/* Critical: allow the main column to shrink instead of overflowing */
+#main-content {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* Keep common Shiny content inside the main column */
+#main-content .govuk-width-container,
+#main-content .tab-content,
+#main-content .tab-pane,
+#main-content .shiny-plot-output,
+#main-content .html-widget,
+#main-content table {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Add vertical space after the tabs */
+.nav-tabs {
+  margin-bottom: 20px;
+}
+
+/* Prevent the sidebar shrinking too much */
+#nav {
+  align-self: start;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+#nav.nav-expanded {
+  display: block;
+  width: 280px;
+}
+
+/* Hidden nav */
+#nav.nav-collapsed {
+  display: none !important;
+  width: 0 !important;
+}
+
+.app-nav {
+  background: #ffffff;
+}
+
+/* Active custom nav link */
+.app-nav__link.is-active {
+  border-left: 4px solid #1d70b8;
+  font-weight: 700;
+  color: #1d70b8 !important;
+  background-color: transparent;
+}
+
+.app-nav__heading {
+  margin-bottom: 12px;
+}
+
+.app-nav__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-left: 4px solid transparent;
+  text-decoration: none;
+  color: #0b0c0c;
+}
+
+.app-nav__link:visited {
+  color: #0b0c0c;
+}
+
+.app-nav__text {
+  white-space: nowrap;
+}
+
+.app-nav__link:focus {
+  outline: none;
+}
+
+.app-nav__link:focus-visible {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+}
+
+/* When nav is hidden, give all space to main content */
+.layout-grid.nav-collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+
+.nav-toggle {
+  margin-bottom: 16px;
+}
+
+
+/* Mobile stays single-column */
+@media (max-width: 768px) {
+  .layout-grid,
+  .layout-grid.nav-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  #nav.nav-expanded {
+    display: block;
+    width: auto;
+  }
+
+  #nav.nav-collapsed {
+    display: none;
+    width: 0;
+  }
+}
+
+
+/* Buttons */
+
+/* Use GOV.UK primary green button */
+.govuk-button:not(.govuk-button--secondary) {
+  background-color: #00703c !important;   /* green */
+  color: #ffffff !important;
+  box-shadow: 0 3px 0 #002d18 !important;
+  font-weight: 700;
+  
+  /* Increase size */
+  font-size: 16px !important;
+  padding: 8px 12px !important;
+}
+
+.govuk-button:hover {
+  background-color: #005a30 !important;
+}
+
+.govuk-button:active {
+  top: 2px;
+  box-shadow: none !important;
+}
+
+
+/* Secondary buttons */
+.govuk-button--secondary {
+  background-color: #f3f2f1 !important;
+  color: #0b0c0c !important;
+  box-shadow: 0 2px 0 #b1b4b6 !important;
+  font-size: 16px !important;
+  padding: 8px 12px !important;
+}
+
+.govuk-button--secondary:active {
+  top: 2px;
+  box-shadow: none !important;
+}
+
+.govuk-button--secondary:hover {
+  background-color: #dbdad9 !important;
+}
+
+/* Filter card styling */
+.filter-card {
+  border: 1px solid #b1b4b6;
+  background: #ffffff;
+  margin-bottom: 18px;
+}
+
+.filter-card__head {
+  background: #f3f2f1;
+  padding: 10px 16px;
+  border-bottom: 1px solid #b1b4b6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-card__head h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.filter-card__body {
+  background: #ffffff;
+  padding: 12px 14px;
+}
+
+.filter-top-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.filter-top-row h2 {
+  margin: 0;
+}
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden;
+  min-height: 100%;
+}
+
+/* Remove default Shiny/Bootstrap page padding */
+.container-fluid {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Make selectize look closer to chip + X */
+.selectize-control.multi .selectize-input > div {
+  background: #ffffff;
+  border: 1px solid #0b0c0c;
+  border-radius: 0;
+  padding: 4px 8px;
+}
+
+.selectize-control.multi .selectize-input > div .remove {
+  border-left: 0;
+  margin-left: 6px;
+}
+
+.filter-clear {
+  margin-top: 6px;
+  text-align: right;
+}
+
+/* Legend box and status tags (used on Life expectancy distribution page) */
+.chart-legend {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #b1b4b6;
+  background: #f3f2f1;
+}
+
+.legend-title {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.legend-items {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.status-tag {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 4px 8px;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Add style for skip links */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #12436D;
+  color: white;
+  padding: 8px 12px;
+  z-index: 1000;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 10px;
+}
+
+.tag--better {
+  background: #cce2d8;
+  color: #005a30;
+  border-color: #005a30;
+}
+
+.tag--similar {
+  background: #fff7bf;
+  color: #594d00;
+  border-color: #594d00;
+}
+
+.tag--worse {
+  background: #f8d7da;
+  color: #94171c;
+  border-color: #94171c;
+}
+
+/* Make the page use a full-height vertical layout */
+html,
+body {
+  min-height: 100%;
+}
+
+/* Let the Shiny page fill the viewport height */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Let the main content take available vertical space */
+#main-content {
+  flex: 1 0 auto;
+  padding-bottom: 60px;
+}
+
+/* Keep the footer below the content */
+.govuk-footer {
+  flex-shrink: 0;
+  clear: both;
+  margin-top: 40px;
+}
+
+
+/* Two-column layout for pages with section navigation */
+.app-page-with-side-nav {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 40px;
+  align-items: start;
+}
+
+/* Sticky side navigation for page sections */
+.app-page-side-nav {
+  position: sticky;
+  top: 140px;
+  align-self: start;
+  border-left: 4px solid #1d70b8;
+  padding-left: 16px;
+}
+
+/* Side navigation heading */
+.app-page-side-nav__heading {
+  margin-bottom: 10px;
+}
+
+/* Side navigation list */
+.app-page-side-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Side navigation item */
+.app-page-side-nav__item {
+  margin-bottom: 8px;
+}
+
+/* Side navigation links */
+.app-page-side-nav__link {
+  font-size: 19px;
+  line-height: 1.35;
+  color: #1d70b8;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Side navigation focus state */
+.app-page-side-nav__link:focus {
+  outline: 3px solid #ffdd00;
+  background-color: #ffdd00;
+  color: #0b0c0c;
+  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+  text-decoration: none;
+}
+
+/* Main content column */
+.app-page-with-side-nav__content {
+  min-width: 0;
+}
+
+/* Add spacing between long page sections */
+.app-page-section {
+  scroll-margin-top: 80px;
+  margin-bottom: 60px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #b1b4b6;
+}
+
+/* Remove border from final section */
+.app-page-section:last-child {
+  border-bottom: 0;
+}
+
+/* Stack the layout on smaller screens */
+@media (max-width: 768px) {
+  .app-page-with-side-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .app-page-side-nav {
+    position: static;
+    border-left: 0;
+    border-top: 4px solid #1d70b8;
+    padding-left: 0;
+    padding-top: 12px;
+    margin-bottom: 24px;
+  }
+}
+
+/* Keep header and top navigation full width regardless of active tab */
+.govuk-header,
+.app-top-nav {
+  width: 100vw !important;
+  max-width: none !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+}
+
+/* Make the top navigation background and border stretch across the full screen */
+.app-top-nav {
+  width: 100vw !important;
+  max-width: none !important;
+  margin-left: calc(50% - 50vw) !important;
+  margin-right: calc(50% - 50vw) !important;
+  border-bottom: 1px solid #b1b4b6;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+/* Keep the links themselves left aligned inside the full-width bar */
+.app-top-nav .govuk-width-container {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  box-sizing: border-box;
+}
+
+/* Keep the list starting from the left */
+.app-top-nav .govuk-service-navigation__list {
+  justify-content: flex-start !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Allow sticky side nav to work inside the page layout */
+.app-page-with-side-nav,
+.app-page-with-side-nav__content,
+.tab-content,
+.tab-pane {
+  overflow: visible !important;
+}
+
+/* Allow sticky side navigation to work inside Shiny tab panels */
+#main-content,
+#main-content .tab-content,
+#main-content .tab-pane,
+.app-page-with-side-nav,
+.app-page-with-side-nav__content {
+  overflow: visible !important;
+}
+
+/* Keep the within-page side navigation visible while scrolling */
+.app-page-side-nav {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 140px;
+  align-self: start;
+  z-index: 10;
+}
+
+/* Fallback: keep side navigation fixed on desktop */
+@media (min-width: 769px) {
+  .app-page-side-nav {
+    position: fixed;
+    top: 140px;
+    left: 40px;
+    width: 260px;
+    z-index: 10;
+    background: #ffffff;
+  }
+
+  .app-page-with-side-nav {
+    display: block;
+  }
+
+  .app-page-with-side-nav__content {
+    margin-left: 340px;
+  }
+}
