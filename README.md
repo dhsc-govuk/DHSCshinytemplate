@@ -47,8 +47,6 @@ dhscshinytemplate::run_app()
 
 The dashboard should then pop up in a new window. Note that each of these steps should take under a minute, aside from the second step (install_deps) which may take up to an hour, but it should show you the packages that it is installing rather than appearing frozen.
 
-### How to set up renv (package control)
-James R to complete
 
 ## Contents
 
