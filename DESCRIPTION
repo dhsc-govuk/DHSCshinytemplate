@@ -5,8 +5,7 @@ Authors@R:
     person(given = "DHSC Data Science",
            role = c("aut", "cre"),
            email = "datascience@dhsc.gov.uk")
-Description: A Shiny dashboard template demonstrating accessible,
-GOV.UK-aligned analytical dashboards using shinyGovstyle, afcharts and golem.
+Description: A Shiny dashboard template demonstrating accessible, GOV.UK-aligned analytical dashboards using shinyGovstyle, afcharts and golem.
 License: MIT
 Imports: 
     afcharts,
