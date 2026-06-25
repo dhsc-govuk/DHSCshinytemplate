@@ -1,13 +1,13 @@
 Package: dhscshinytemplate
-Title: An Amazing Shiny App
+Title: DHSC Shiny Dashboard Template
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "firstname",
-           family = "lastname",
+    person(given = "DHSC Data Science",
            role = c("aut", "cre"),
-           email = "your@email.com")
-Description: What the package does (one paragraph).
-License: What license is it under?
+           email = "datascience@dhsc.gov.uk")
+Description: A Shiny dashboard template demonstrating accessible,
+GOV.UK-aligned analytical dashboards using shinyGovstyle, afcharts and golem.
+License: MIT
 Imports: 
     afcharts,
     config,
