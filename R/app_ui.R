@@ -11,7 +11,9 @@ app_ui <- function(request) {
 
     # Application UI logic
     shiny::fluidPage(
-     
+      # Skip to main content
+      shinyGovstyle::skip_to_main(),
+
       # GOV.UK style header
       # Main and secondary text remain unchanged from template
       shinyGovstyle::header(
@@ -19,29 +21,21 @@ app_ui <- function(request) {
         service_name = "",
         logo = "www/DHSC_logo.svg"
       ),
-      tags$a(
-        href = "#main-content",
-        class = "skip-link",
-        "Skip to main content"
-      ),
-      
+
       # Enable shinyjs helpers
       shinyjs::useShinyjs(),
 
-      
+
       # Two column layout:
       # - Left: navigation accordion
       # - Right: hidden tabset controlled via navigation links
-      
+
       # Add top navigation below the header and skip link
       top_nav_links(),
-      
+
       # Main content area using the existing hidden tabset
-      tags$main(
-        id = "main-content",
-        tabindex = "-1",
-        class = "govuk-main-wrapper govuk-width-container",
-          
+      shinyGovstyle::gov_main_layout(
+
           # Tabset panel for all the pages
           tabsetPanel(
             type = "hidden",
@@ -52,15 +46,15 @@ app_ui <- function(request) {
               value = "landing",
               shinyGovstyle::gov_layout(
                 size = "full",
-                shinyGovstyle::heading_text("Landing page", "l"),
-                tags$div("This dashboard provides an example of what 
+                shinyGovstyle::heading_text("Landing page", "xl"),
+                tags$div("This dashboard provides an example of what
                        tables and charts can be provided in Shiny within
-                       DHSC. It uses the DfE shinyGovStyle and 
-                       the afcharts package and conforms closely 
+                       DHSC. It uses the DfE shinyGovStyle and
+                       the afcharts package and conforms closely
                        to GDS standards on accessibility and branding."),
                 br(),
                 tags$div("The data comes from the gapminder package in R,
-                           so this demonstration can be run by anyone with 
+                           so this demonstration can be run by anyone with
                          access to R."),
                 br()
                 )
@@ -71,7 +65,7 @@ app_ui <- function(request) {
               value = "summary",
               shinyGovstyle::gov_layout(
                 size = "full",
-                shinyGovstyle::heading_text("Summary", "l"),
+                shinyGovstyle::heading_text("Summary", "xl"),
                 tags$div("This page shows a line chart and associated data table,
                          as well as a report that can be downloaded
                          by the user."),
@@ -96,7 +90,7 @@ app_ui <- function(request) {
                         )
                       )
                     ),
-  
+
                   selectizeInput(
                     "indicator", "Metric",
                     # Note try to avoid hard-coding choices where possible
@@ -146,7 +140,7 @@ app_ui <- function(request) {
                       class = "govuk-heading-m",
                       "Published MI"
                     ),
-  
+
                     # Wrap plot in spinner, so that it shows a spinner
                     # when calculating/recalculating them
                     # rather than keeping them visible but greyed out
@@ -215,10 +209,10 @@ app_ui <- function(request) {
             tabPanel(
               "Life expectancy",
               value = "life_expectancy",
-              
+
               shiny::tags$div(
                 class = "app-page-with-side-nav",
-                
+
                 # Side navigation for page sections
                 page_side_nav(
                   c(
@@ -229,26 +223,26 @@ app_ui <- function(request) {
                   ),
                   header_name = "Life expectancy pages"
                 ),
-                
+
                 # Main content for the Life expectancy page
                 shiny::tags$div(
                   class = "app-page-with-side-nav__content",
-                  
-                  shiny::tags$h1(
+
+                  shiny::tags$h2(
                     class = "govuk-heading-xl",
                     "Life expectancy"
                   ),
-                  
-                  # Life expectancy comparison section 
+
+                  # Life expectancy comparison section
                   shiny::tags$section(
                     id = "life-exp-comparison",
                     class = "app-page-section",
-                    
+
                     shiny::tags$h2(
                       class = "govuk-heading-l",
                       "Comparison"
                     ),
-                    
+
                   # Filter section
                   tags$div(
                     class = "filter-card",
@@ -282,10 +276,10 @@ app_ui <- function(request) {
                       )
                     )
                   ),
-                    # Tabs for life expectancy comparison 
+                    # Tabs for life expectancy comparison
                     tabsetPanel(
                       id = "pop_tabs",
-                      
+
                       tabPanel(
                         "Chart",
                         div(
@@ -299,7 +293,7 @@ app_ui <- function(request) {
                           plotOutput("lifeexp_mirror_plot", height = 520)
                         )
                       ),
-                      
+
                     tabPanel(
                       "Data table",
                       div(
@@ -466,15 +460,15 @@ app_ui <- function(request) {
           shiny::tags$section(
             id = "life-exp-trends",
             class = "app-page-section",
-            
+
             shiny::tags$h2(
               class = "govuk-heading-l",
               "Trends"
             ),
-            
+
             tags$p("This page shows trends in life
                    expectancy using a line chart"),
-            
+
             tags$h2(class = "govuk-heading-m",
                     "Outputs"),
             tabsetPanel(
@@ -485,7 +479,7 @@ app_ui <- function(request) {
                         "Life expectancy trend by continent"),
                 plotOutput("continent_trend_plot", height = 520),
                 # Short description of insights
-                tags$p("Life expectancy has increased across all 
+                tags$p("Life expectancy has increased across all
                 continents over time, with Europe and Oceania
                 consistently having the highest values."),
                 br(),
@@ -508,6 +502,7 @@ app_ui <- function(request) {
               value = "other_charts",
               shinyGovstyle::gov_layout(
                 size = "full",
+                shinyGovstyle::heading_text("Other charts", "xl"),
                 shinyGovstyle::heading_text("Current population", "l"),
                 tags$p("Illustrative snapshot from Gapminder: population by continent."),
                 tags$div(
@@ -576,7 +571,7 @@ app_ui <- function(request) {
                 ),
                 tabsetPanel(
                   id = "gdp_by_cap_tabs",
-                    # Tab for chart 
+                    # Tab for chart
                     tabPanel(
                       "Chart",
                       tags$h3(class = "govuk-heading-m",
@@ -595,14 +590,14 @@ app_ui <- function(request) {
                       tags$p("Data source: Gapminder")
                     )
                   )
-                
+
             ),
               # Definitions ----------------------------------------------
               tabPanel(
                 "Definitions", value = "definition",
                 shinyGovstyle::gov_layout(
                   size = "full",
-                  shinyGovstyle::heading_text("Definitions", "l"),
+                  shinyGovstyle::heading_text("Definitions", "xl"),
                   tags$p("This dashboard uses the Gapminder dataset from the R package \"gapminder\"."),
                   tags$h2(class = "govuk-heading-m",
                           "Variables"),
@@ -617,7 +612,7 @@ app_ui <- function(request) {
                               "Countries covered in the dataset by continent"),
                       plotOutput("coverage_plot", height = 420),
                       tags$p("Data source: Gapminder")
-                    ), 
+                    ),
                     tabPanel(
                       "Table",
                       tags$h3(class = "govuk-heading-m",
@@ -634,7 +629,7 @@ app_ui <- function(request) {
               value = "uk_map",
               shinyGovstyle::gov_layout(
                 size = "full",
-                shinyGovstyle::heading_text("Population by Local Authority", "l"),
+                shinyGovstyle::heading_text("Population by Local Authority", "xl"),
                 tags$div(
                   class = "filter-card",
                   tags$div(
@@ -683,7 +678,7 @@ app_ui <- function(request) {
 
     )
   )
-  
+
 }
 
 #' Add external Resources to the Application
