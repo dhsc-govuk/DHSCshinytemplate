@@ -33,7 +33,7 @@
 
 /* GOV.UK header */
 header.govuk-header {
-  background-color: #0b9e8a !important;
+  background-color: var(--department-colour) !important;
   padding-top: 8px !important;
   padding-bottom: 0px !important;
   padding-left: 20px;
@@ -333,7 +333,7 @@ header.govuk-header a,
   color: #ffffff !important;
   box-shadow: 0 3px 0 #002d18 !important;
   font-weight: 700;
-  
+
   /* Increase size */
   font-size: 16px !important;
   padding: 8px 12px !important;

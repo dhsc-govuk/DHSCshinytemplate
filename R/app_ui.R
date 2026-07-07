@@ -690,13 +690,26 @@ app_ui <- function(request) {
 #' @importFrom golem add_resource_path activate_js favicon bundle_resources
 #' @noRd
 golem_add_external_resources <- function() {
-  add_resource_path(
-    "www",
-    app_sys("app", "www")
-  )
+
+  # Select organisation
+  organisation <- "department-of-health-social-care"
+
+  # Find org colour from list
+  # List taken from gov frontend
+  org_colour <- govuk_org_colour(organisation)
 
   tags$head(
     favicon(),
+    tags$style(
+      HTML(
+        sprintf(
+          ":root {
+           --department-colour: %s;
+         }",
+          org_colour
+        )
+      )
+    ),
     bundle_resources(
       path = app_sys("app", "www"),
       app_title = "dhscshinytemplate"
