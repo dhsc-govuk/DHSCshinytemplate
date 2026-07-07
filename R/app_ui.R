@@ -228,7 +228,7 @@ app_ui <- function(request) {
                 shiny::tags$div(
                   class = "app-page-with-side-nav__content",
 
-                  shiny::tags$h2(
+                  shiny::tags$h1(
                     class = "govuk-heading-xl",
                     "Life expectancy"
                   ),
