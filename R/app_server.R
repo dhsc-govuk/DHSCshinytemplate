@@ -19,86 +19,7 @@ app_server <- function(input, output, session) {
   continents <- sort(unique(gap$continent))
   countries_all <- sort(unique(gap$country))
 
-  # Map service navigation input IDs to hidden tab values
-  nav_map <- c(
-    sn_landing = "landing",
-    sn_summary = "summary",
-    sn_life_expectancy = "life_expectancy",
-    sn_other_charts = "other_charts",
-    sn_uk_map = "uk_map",
-    sn_definition = "definition"
-  )
 
-  # Create one observer per service navigation item
-  purrr::iwalk(nav_map, function(tab_value, input_id) {
-    shiny::observeEvent(
-      input[[input_id]],
-      {
-        shiny::updateTabsetPanel(
-          session = session,
-          inputId = "tab-container",
-          selected = tab_value
-        )
-      },
-      ignoreInit = TRUE
-    )
-  })
-
-  # Update the hidden tabset when the top navigation value changes
-  observeEvent(input$`service_navigation`, {
-    print("Updating tabset panel")
-    shiny::updateTabsetPanel(
-      session = session,
-      inputId = "tab-container",
-      selected = input$`service_navigation`
-    )
-  })
-
-  # tab selection -> sidebar highlight
-  observe({
-    req(input$`tab-container`)
-
-    session$sendCustomMessage(
-      "set-active-contents-link",
-      list(value = input$`tab-container`)
-    )
-  })
-
-  # Set the initial active navigation item after the UI has finished rendering.
-  session$onFlushed(function() {
-    session$sendCustomMessage(
-      "set-active-contents-link",
-      list(value = "landing")
-    )
-  }, once = TRUE)
-
-  # Keep country choices in sync with continent selection on Summary
-  observeEvent(input$continent,
-    {
-      sel_cont <- input$continent[[1]]
-
-      available <- if (!is.null(sel_cont) && sel_cont != "All") {
-        sort(unique(gap$country[gap$continent == sel_cont]))
-      } else {
-        countries_all
-      }
-
-      # Preserve any previously selected countries that are still valid
-      # after the continent filter changes.
-      current <- input$countries %||% character(0)
-      keep <- intersect(current, available)
-
-      # Fall back to a sensible default selection so the chart and table
-      # do not render empty after changing continent.
-      if (length(keep) == 0) {
-        keep <- intersect(c("United Kingdom", "France", "Germany", "Canada", "Australia"), available)
-        if (length(keep) == 0) keep <- head(available, 5)
-      }
-
-      updateSelectizeInput(session, "countries", choices = available, selected = keep, server = TRUE)
-    },
-    ignoreInit = FALSE
-  )
 
   # Summary page --------------------------------------------------
 
@@ -145,10 +66,10 @@ app_server <- function(input, output, session) {
       ) |>
       dplyr::select(
         c(Year,
-        Country,
-        Continent,
-        Metric,
-        Value)
+          Country,
+          Continent,
+          Metric,
+          Value)
       ) |>
 
       dplyr::arrange(Country, Year)
@@ -273,17 +194,17 @@ app_server <- function(input, output, session) {
 
   # Clear filters
   observeEvent(input$clear_filters,
-    ignoreInit = TRUE,
-    {
-      updateSelectizeInput(session, "indicator", selected = "lifeExp")
-      updateSelectizeInput(session, "continent", selected = "All")
-      updateSelectizeInput(session, "country_focus", selected = "Total")
-      updateSelectizeInput(
-        session,
-        "countries",
-        selected = c("United Kingdom", "France", "Germany", "Canada", "Australia")
-      )
-    }
+               ignoreInit = TRUE,
+               {
+                 updateSelectizeInput(session, "indicator", selected = "lifeExp")
+                 updateSelectizeInput(session, "continent", selected = "All")
+                 updateSelectizeInput(session, "country_focus", selected = "Total")
+                 updateSelectizeInput(
+                   session,
+                   "countries",
+                   selected = c("United Kingdom", "France", "Germany", "Canada", "Australia")
+                 )
+               }
   )
 
   # Download for csv
@@ -567,7 +488,7 @@ app_server <- function(input, output, session) {
     paste0("Life expectancy by country (",
            cont,
            ")")
-    })
+  })
 
   output$life_exp_dist_subtitle <- renderText({
     show_ci <- isTRUE(input$mort_show_ci)
@@ -650,16 +571,38 @@ app_server <- function(input, output, session) {
   },
   alt = "A plot of life expectancy by country in the selected continent")
 
-  output$population_ineq_table <- renderTable({
-    dist_df() |>
-      dplyr::rename(
-        Country = country,
-        `Life expectancy` = lifeExp,
-        `Low band` = lo,
-        `High band` = hi,
-        Status = status
-      )
-  }, striped = FALSE, bordered = FALSE, spacing = "s")
+  output$population_ineq_table <- shinyGovstyle::renderGovReactable({
+    shinyGovstyle::govReactable(
+      df = dist_df() |>
+        dplyr::select(country,
+                      lifeExp,
+                      lo,
+                      hi,
+                      status) |>
+        # round all numeric columns to the nearest 2dp
+        dplyr::mutate(
+          dplyr::across(
+            dplyr::where(is.numeric),
+            ~ round(.x, 2)
+          )
+        ) |>
+        dplyr::rename(
+          Country = country,
+          `Life expectancy` = lifeExp,
+          `Low band` = lo,
+          `High band` = hi,
+          Status = status
+        ),
+      # Columns to right-align
+      # Note that numeric columns should be right-aligned!
+      right_col = c("Life expectancy",
+                    "Low band",
+                    "High band",
+                    "Average"),
+      page_size = 10,
+    )
+  })
+
 
   observeEvent(TRUE, {
     if (is.null(input$mort_show_ci)) {
@@ -682,7 +625,7 @@ app_server <- function(input, output, session) {
         dplyr::filter(continent == cont)
     }
     d
-    })
+  })
 
   # Create subtitle
   output$life_exp_gdp_subtitle <- renderText({
@@ -731,7 +674,7 @@ app_server <- function(input, output, session) {
 
     plotly::ggplotly(p, tooltip = "text")
   })
-    #,
+  #,
   #alt = "A plot of GDP per capita and life expectancy"
   output$life_exp_gdp_table <- renderTable({
     d <- life_exp_gdp()
@@ -832,9 +775,9 @@ app_server <- function(input, output, session) {
   output$current_pop_table <- renderTable({
     d <-
       current_pop() |>
-        dplyr::rename(Continent = continent,
-                      Population= pop,
-                      `Population (millions)` = pop_m)
+      dplyr::rename(Continent = continent,
+                    Population= pop,
+                    `Population (millions)` = pop_m)
   }, striped = FALSE, bordered = FALSE, spacing = "s")
 
   output$current_pop_year_plot <- renderText({
@@ -877,10 +820,10 @@ app_server <- function(input, output, session) {
         x = NULL,
         y = "GDP per capita (log scale)",
       ) +
-    ggplot2::scale_fill_manual(
-      values = rep("#D9D9D9",
-                   length(unique(d$continent)))
-    )
+      ggplot2::scale_fill_manual(
+        values = rep("#D9D9D9",
+                     length(unique(d$continent)))
+      )
   },
   alt = "A plot of GDP per capita by continent")
 
@@ -1115,5 +1058,142 @@ app_server <- function(input, output, session) {
       )
   })
 
+  # Observers -----------------------------------------
+
+  # Map top-level page values to their sidebar functions
+  page_nav_registry <- list(
+    life_expectancy = life_expectancy_side_nav_ui
+
+    # Add more sidebar functions here later
+    # summary = summary_side_nav_ui,
+    # other_charts = other_charts_side_nav_ui
+  )
+
+  # Render the section navigation for the active page
+  output$page_side_nav <- renderUI({
+    # Read the current page
+    active_page <- input[["tab-container"]]
+
+    # Stop until the tabset has initialised
+    req(active_page)
+
+    # Find the registered navigation function
+    nav_function <- page_nav_registry[[active_page]]
+
+    # Return no content for pages without section navigation
+    if (is.null(nav_function)) {
+      return(NULL)
+    }
+
+    # Build the navigation
+    nav_function()
+  })
+
+  # Keep the dynamic navigation active while its column is hidden
+  outputOptions(
+    output,
+    "page_side_nav",
+    suspendWhenHidden = FALSE
+  )
+
+  # Update the application layout when the top-level page changes
+  observeEvent(
+    input[["tab-container"]],
+    {
+      # Read the active page value
+      active_page <- input[["tab-container"]]
+
+      # Check whether the active page has registered navigation
+      has_navigation <- active_page %in% names(page_nav_registry)
+
+      if (has_navigation) {
+        # Show the complete navigation column
+        shinyjs::removeClass(
+          id = "app-shell",
+          class = "app-shell--no-navigation"
+        )
+      } else {
+        # Hide the complete navigation column
+        shinyjs::addClass(
+          id = "app-shell",
+          class = "app-shell--no-navigation"
+        )
+      }
+    },
+    ignoreInit = FALSE
+  )
+
+  # Map service navigation input IDs to hidden tab values
+  nav_map <- c(
+    sn_landing = "landing",
+    sn_summary = "summary",
+    sn_life_expectancy = "life_expectancy",
+    sn_other_charts = "other_charts",
+    sn_uk_map = "uk_map",
+    sn_definition = "definition"
+  )
+
+  # Create one observer per service navigation item
+  purrr::iwalk(nav_map, function(tab_value, input_id) {
+    shiny::observeEvent(
+      input[[input_id]],
+      {
+        shiny::updateTabsetPanel(
+          session = session,
+          inputId = "tab-container",
+          selected = tab_value
+        )
+      },
+      ignoreInit = TRUE
+    )
+  })
+
+  # Update the hidden tabset when the top navigation value changes
+  observeEvent(input$`service_navigation`, {
+    print("Updating tabset panel")
+    shiny::updateTabsetPanel(
+      session = session,
+      inputId = "tab-container",
+      selected = input$`service_navigation`
+    )
+  })
+
+  # tab selection -> sidebar highlight
+  observe({
+    req(input$`tab-container`)
+
+    session$sendCustomMessage(
+      "set-active-contents-link",
+      list(value = input$`tab-container`)
+    )
+  })
+
+  # Keep country choices in sync with continent selection on Summary
+  observeEvent(input$continent,
+               {
+                 sel_cont <- input$continent[[1]]
+
+                 available <- if (!is.null(sel_cont) && sel_cont != "All") {
+                   sort(unique(gap$country[gap$continent == sel_cont]))
+                 } else {
+                   countries_all
+                 }
+
+                 # Preserve any previously selected countries that are still valid
+                 # after the continent filter changes.
+                 current <- input$countries %||% character(0)
+                 keep <- intersect(current, available)
+
+                 # Fall back to a sensible default selection so the chart and table
+                 # do not render empty after changing continent.
+                 if (length(keep) == 0) {
+                   keep <- intersect(c("United Kingdom", "France", "Germany", "Canada", "Australia"), available)
+                   if (length(keep) == 0) keep <- head(available, 5)
+                 }
+
+                 updateSelectizeInput(session, "countries", choices = available, selected = keep, server = TRUE)
+               },
+               ignoreInit = FALSE
+  )
 
 } # end of server function - do not delete!

@@ -53,6 +53,19 @@ page_side_nav <- function(links,
   )
 }
 
+# Create the Life expectancy section navigation
+life_expectancy_side_nav_ui <- function() {
+  page_side_nav(
+    links = c(
+      "Comparison" = "life-exp-comparison",
+      "Distribution" = "life-exp-distribution",
+      "GDP relationship" = "life-exp-gdp",
+      "Trends" = "life-exp-trends"
+    ),
+    header_name = "Life expectancy"
+  )
+}
+
 
 # Colours ----------------------------------------------
 
@@ -92,4 +105,3 @@ govuk_org_colour <- function(org) {
 
   colours[[org]]
 }
-
