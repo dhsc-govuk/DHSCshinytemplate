@@ -33,7 +33,7 @@
 
 /* GOV.UK header */
 header.govuk-header {
-  background-color: #0b9e8a !important;
+  background-color: var(--department-colour) !important;
   padding-top: 8px !important;
   padding-bottom: 0px !important;
   padding-left: 20px;
@@ -151,40 +151,90 @@ header.govuk-header a,
 
 
 
+/* Stack the global sidebar above the page on smaller screens */
 @media (max-width: 768px) {
-  header .govuk-header__container {
-    flex-wrap: wrap !important;
-    align-items: flex-start !important;
-    gap: 12px !important;
-    padding: 8px 16px !important;
+  .app-shell,
+  .app-shell.app-shell--sidebar-collapsed {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .govuk-header__logo {
-    flex: 1 1 100% !important;
+  /* Stop the sidebar being sticky on smaller screens */
+  .app-shell__sidebar {
+    position: static;
+    height: auto;
+    margin-bottom: 24px;
   }
 
-  .govuk-header__logo .govuk-header__link--homepage {
-    width: 100% !important;
-  }
-
-  .govuk-header__logotype {
-    flex-wrap: wrap !important;
-    gap: 12px !important;
-    white-space: normal !important;
-  }
-
-  .govuk-header__logotype-text {
-    white-space: normal !important;
-    font-size: 20px !important;
-  }
-
-  .govuk-header__content {
-    flex: 1 1 100% !important;
-    justify-content: flex-start !important;
-    text-align: left !important;
+  /* Place a border above the page navigation */
+  .app-page-side-nav {
+    position: static;
+    border-left: 0;
+    border-top: 4px solid #1d70b8;
+    padding-left: 0;
+    padding-top: 12px;
   }
 }
 
+/* Keep the button and page navigation visible during scrolling */
+.app-shell__nav-column {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  height: fit-content;
+  min-width: 0;
+  z-index: 10;
+}
+
+/* The outer navigation column controls sticky positioning */
+.app-shell__sidebar {
+  position: static;
+  min-width: 0;
+  height: auto;
+}
+
+/* Style the navigation, but do not make it independently sticky */
+.app-page-side-nav {
+  position: static;
+  border-left: 4px solid #1d70b8;
+  padding-left: 16px;
+}
+
+/* Page navigation heading */
+.app-page-side-nav__heading {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+/* Remove default list formatting */
+.app-page-side-nav__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Separate navigation items */
+.app-page-side-nav__item {
+  margin-bottom: 8px;
+}
+
+/* Style page navigation links */
+.app-page-side-nav__link {
+  display: inline-block;
+  color: #1d70b8;
+  font-size: 19px;
+  line-height: 1.35;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* Provide a visible keyboard focus state */
+.app-page-side-nav__link:focus {
+  outline: 3px solid #ffdd00;
+  background-color: #ffdd00;
+  color: #0b0c0c;
+  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
+  text-decoration: none;
+}
 
 
 
@@ -333,7 +383,7 @@ header.govuk-header a,
   color: #ffffff !important;
   box-shadow: 0 3px 0 #002d18 !important;
   font-weight: 700;
-  
+
   /* Increase size */
   font-size: 16px !important;
   padding: 8px 12px !important;
@@ -408,7 +458,7 @@ header.govuk-header a,
 html, body {
   margin: 0 !important;
   padding: 0 !important;
-  overflow-x: hidden;
+  overflow-x: clip;
   min-height: 100%;
 }
 
@@ -527,63 +577,6 @@ body {
 }
 
 
-/* Two-column layout for pages with section navigation */
-.app-page-with-side-nav {
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  gap: 40px;
-  align-items: start;
-}
-
-/* Sticky side navigation for page sections */
-.app-page-side-nav {
-  position: sticky;
-  top: 140px;
-  align-self: start;
-  border-left: 4px solid #1d70b8;
-  padding-left: 16px;
-}
-
-/* Side navigation heading */
-.app-page-side-nav__heading {
-  margin-bottom: 10px;
-}
-
-/* Side navigation list */
-.app-page-side-nav__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-/* Side navigation item */
-.app-page-side-nav__item {
-  margin-bottom: 8px;
-}
-
-/* Side navigation links */
-.app-page-side-nav__link {
-  font-size: 19px;
-  line-height: 1.35;
-  color: #1d70b8;
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-}
-
-/* Side navigation focus state */
-.app-page-side-nav__link:focus {
-  outline: 3px solid #ffdd00;
-  background-color: #ffdd00;
-  color: #0b0c0c;
-  box-shadow: 0 -2px #ffdd00, 0 4px #0b0c0c;
-  text-decoration: none;
-}
-
-/* Main content column */
-.app-page-with-side-nav__content {
-  min-width: 0;
-}
-
 /* Add spacing between long page sections */
 .app-page-section {
   scroll-margin-top: 80px;
@@ -597,21 +590,37 @@ body {
   border-bottom: 0;
 }
 
-/* Stack the layout on smaller screens */
-@media (max-width: 768px) {
-  .app-page-with-side-nav {
-    grid-template-columns: 1fr;
-  }
-
-  .app-page-side-nav {
-    position: static;
-    border-left: 0;
-    border-top: 4px solid #1d70b8;
-    padding-left: 0;
-    padding-top: 12px;
-    margin-bottom: 24px;
-  }
+/* Standard application layout */
+.app-shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  width: 100%;
+  max-width: none;
 }
+
+/* Keep a narrow column for the Show navigation button */
+.app-shell.app-shell--sidebar-collapsed {
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 16px;
+}
+
+/* Hide the navigation links while retaining the toggle */
+.app-shell.app-shell--sidebar-collapsed .app-shell__sidebar {
+  display: none;
+}
+
+/* Remove the complete navigation column on pages without navigation */
+.app-shell.app-shell--no-navigation {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Hide both the button and sidebar when the page has no navigation */
+.app-shell.app-shell--no-navigation .app-shell__nav-column {
+  display: none;
+}
+
 
 /* Keep header and top navigation full width regardless of active tab */
 .govuk-header,
@@ -668,31 +677,53 @@ body {
   overflow: visible !important;
 }
 
-/* Keep the within-page side navigation visible while scrolling */
-.app-page-side-nav {
-  position: -webkit-sticky;
-  position: sticky;
-  top: 140px;
-  align-self: start;
-  z-index: 10;
+
+/* Give the toggle some separation from the page layout */
+.page-nav-toggle {
+  margin-bottom: 16px;
 }
 
-/* Fallback: keep side navigation fixed on desktop */
-@media (min-width: 769px) {
-  .app-page-side-nav {
-    position: fixed;
-    top: 140px;
-    left: 40px;
-    width: 260px;
-    z-index: 10;
-    background: #ffffff;
+/* Use the full page width when the section navigation is hidden */
+.app-page-with-side-nav--collapsed {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+
+/* Allow the Life expectancy page to use the available main width */
+.life-expectancy-page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+/* Ensure the hidden tab and page layout use the full available width */
+#tab-container,
+#tab-container > .tab-content,
+#tab-container > .tab-content > .tab-pane,
+#tab-container > .tab-content > .tab-pane.active {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+}
+
+
+/* Stack navigation and page content on smaller screens */
+@media (max-width: 768px) {
+  .app-shell,
+  .app-shell.app-shell--sidebar-collapsed,
+  .app-shell.app-shell--no-navigation {
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .app-page-with-side-nav {
-    display: block;
+  /* Allow the navigation to scroll normally on mobile */
+  .app-shell__nav-column {
+    position: static;
+    width: 100%;
   }
 
-  .app-page-with-side-nav__content {
-    margin-left: 340px;
+  /* Keep the collapsed toggle aligned to its content */
+  .app-shell.app-shell--sidebar-collapsed
+    .app-shell__nav-column {
+    width: max-content;
   }
 }

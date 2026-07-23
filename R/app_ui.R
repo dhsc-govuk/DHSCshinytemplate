@@ -11,7 +11,9 @@ app_ui <- function(request) {
 
     # Application UI logic
     shiny::fluidPage(
-     
+      # Skip to main content
+      shinyGovstyle::skip_to_main(),
+
       # GOV.UK style header
       # Main and secondary text remain unchanged from template
       shinyGovstyle::header(
@@ -19,236 +21,245 @@ app_ui <- function(request) {
         service_name = "",
         logo = "www/DHSC_logo.svg"
       ),
-      tags$a(
-        href = "#main-content",
-        class = "skip-link",
-        "Skip to main content"
-      ),
-      
+
       # Enable shinyjs helpers
       shinyjs::useShinyjs(),
 
-      
+
       # Two column layout:
       # - Left: navigation accordion
       # - Right: hidden tabset controlled via navigation links
-      
+
       # Add top navigation below the header and skip link
       top_nav_links(),
-      
+
       # Main content area using the existing hidden tabset
-      tags$main(
-        id = "main-content",
-        tabindex = "-1",
-        class = "govuk-main-wrapper govuk-width-container",
-          
-          # Tabset panel for all the pages
-          tabsetPanel(
-            type = "hidden",
-            id = "tab-container",
-            # Landing page ------------------------------------------------
-            tabPanel(
-              "Landing page",
-              value = "landing",
-              shinyGovstyle::gov_layout(
-                size = "full",
-                shinyGovstyle::heading_text("Landing page", "l"),
-                tags$div("This dashboard provides an example of what 
+      shinyGovstyle::gov_main_layout(
+
+        # Global two-column application layout
+        tags$div(
+          id = "app-shell",
+          class = "app-shell app-shell--no-navigation",
+
+          # Sticky column containing the button and page navigation
+          tags$div(
+            id = "app-nav-column",
+            class = "app-shell__nav-column",
+
+            # Control for hiding or showing the page navigation
+            tags$button(
+              id = "nav-toggle",
+              type = "button",
+              class = "govuk-button govuk-button--secondary nav-toggle",
+              `aria-expanded` = "true",
+              `aria-controls` = "app-sidebar",
+              "Hide navigation"
+            ),
+
+            # Dynamically populated page navigation
+            tags$aside(
+              id = "app-sidebar",
+              class = "app-shell__sidebar",
+              uiOutput("page_side_nav")
+            )
+          ),
+
+          # Active top-level page
+          tags$div(
+            class = "app-shell__content",
+
+
+            # Tabset panel for all the pages
+            tabsetPanel(
+              type = "hidden",
+              id = "tab-container",
+              # Landing page ------------------------------------------------
+              tabPanel(
+                "Landing page",
+                value = "landing",
+                shinyGovstyle::gov_layout(
+                  size = "full",
+                  shinyGovstyle::heading_text("Landing page", "xl"),
+                  tags$div("This dashboard provides an example of what
                        tables and charts can be provided in Shiny within
-                       DHSC. It uses the DfE shinyGovStyle and 
-                       the afcharts package and conforms closely 
+                       DHSC. It uses the DfE shinyGovStyle and
+                       the afcharts package and conforms closely
                        to GDS standards on accessibility and branding."),
-                br(),
-                tags$div("The data comes from the gapminder package in R,
-                           so this demonstration can be run by anyone with 
+                  br(),
+                  tags$div("The data comes from the gapminder package in R,
+                           so this demonstration can be run by anyone with
                          access to R."),
-                br()
+                  br()
                 )
               ),
-            # Summary page ---------------------------------------------------
-            tabPanel(
-              "Summary Page",
-              value = "summary",
-              shinyGovstyle::gov_layout(
-                size = "full",
-                shinyGovstyle::heading_text("Summary", "l"),
-                tags$div("This page shows a line chart and associated data table,
+              # Summary page ---------------------------------------------------
+              tabPanel(
+                "Summary Page",
+                value = "summary",
+                shinyGovstyle::gov_layout(
+                  size = "full",
+                  shinyGovstyle::heading_text("Summary", "xl"),
+                  tags$div("This page shows a line chart and associated data table,
                          as well as a report that can be downloaded
                          by the user."),
-                br(),
-                tags$div(
-                  class = "filter-card",
+                  br(),
                   tags$div(
-                    class = "filter-card__head",
-                    tags$h2("Filter")
-                  ),
-                  tags$div(
-                    class = "filter-card__body",
+                    class = "filter-card",
                     tags$div(
-                      class = "filter-top-row",
-                      tags$p(class = "govuk-body govuk-!-font-weight-bold", "Selected filters"),
+                      class = "filter-card__head",
+                      tags$h2("Filter")
+                    ),
+                    tags$div(
+                      class = "filter-card__body",
                       tags$div(
-                        class = "filter-clear",
-                        actionButton(
-                          "clear_filters",
-                          "Clear filters",
-                          class = "govuk-button govuk-button--secondary"
+                        class = "filter-top-row",
+                        tags$p(class = "govuk-body govuk-!-font-weight-bold", "Selected filters"),
+                        tags$div(
+                          class = "filter-clear",
+                          actionButton(
+                            "clear_filters",
+                            "Clear filters",
+                            class = "govuk-button govuk-button--secondary"
+                          )
                         )
+                      ),
+
+                      selectizeInput(
+                        "indicator", "Metric",
+                        # Note try to avoid hard-coding choices where possible
+                        choices = c(
+                          "Life expectancy" = "lifeExp",
+                          "GDP per capita" = "gdpPercap",
+                          "Population" = "pop"
+                        ),
+                        selected = "lifeExp",
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      ),
+                      selectizeInput(
+                        "continent", "Continent",
+                        choices = c("All" = "All", as.character(.continents)),
+                        selected = "All",
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      ),
+                      selectizeInput(
+                        "country_focus", "Country focus",
+                        choices = c("All selected" = "Total", "United Kingdom only" = "UK"),
+                        selected = "Total",
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      ),
+                      selectizeInput(
+                        "countries", "Countries",
+                        choices = .countries,
+                        selected = c("United Kingdom", "France", "Germany", "Canada", "Australia"),
+                        multiple = TRUE,
+                        # AF main6 palette supports up to 6 distinct categorical colours
+                        options = list(maxItems = 6, plugins = list("remove_button"))
                       )
-                    ),
-  
-                  selectizeInput(
-                    "indicator", "Metric",
-                    # Note try to avoid hard-coding choices where possible
-                    choices = c(
-                      "Life expectancy" = "lifeExp",
-                      "GDP per capita" = "gdpPercap",
-                      "Population" = "pop"
-                    ),
-                    selected = "lifeExp",
-                    multiple = TRUE,
-                    options = list(maxItems = 1, plugins = list("remove_button"))
+                    )
                   ),
-                  selectizeInput(
-                    "continent", "Continent",
-                    choices = c("All" = "All", as.character(.continents)),
-                    selected = "All",
-                    multiple = TRUE,
-                    options = list(maxItems = 1, plugins = list("remove_button"))
+                  tags$h2(
+                    class = "govuk-heading-m",
+                    "Example dynamic text"
                   ),
-                  selectizeInput(
-                    "country_focus", "Country focus",
-                    choices = c("All selected" = "Total", "United Kingdom only" = "UK"),
-                    selected = "Total",
-                    multiple = TRUE,
-                    options = list(maxItems = 1, plugins = list("remove_button"))
-                  ),
-                  selectizeInput(
-                    "countries", "Countries",
-                    choices = .countries,
-                    selected = c("United Kingdom", "France", "Germany", "Canada", "Australia"),
-                    multiple = TRUE,
-                    # AF main6 palette supports up to 6 distinct categorical colours
-                    options = list(maxItems = 6, plugins = list("remove_button"))
-                  )
-                  )
-                ),
-                tags$h2(
-                  class = "govuk-heading-m",
-                  "Example dynamic text"
-                ),
-                textOutput("summary_dynamic_text"),
-                br(),
-                tabsetPanel(
-                  tabPanel(
-                    "Line Chart",
-                    tags$h2(
-                      class = "govuk-heading-m",
-                      "Published MI"
+                  textOutput("summary_dynamic_text"),
+                  br(),
+                  tabsetPanel(
+                    tabPanel(
+                      "Line Chart",
+                      tags$h2(
+                        class = "govuk-heading-m",
+                        "Published MI"
+                      ),
+
+                      # Wrap plot in spinner, so that it shows a spinner
+                      # when calculating/recalculating them
+                      # rather than keeping them visible but greyed out
+                      shinycssloaders::withSpinner(
+                        plotOutput("line_chart", height = 420)
+                      ),
+                      tags$p("Data source: Gapminder"),
+                      downloadButton("export_csv",
+                                     "Export CSV",
+                                     class = "govuk-button",
+                                     icon = NULL
+                      ),
+                      # Download button for PNG
+                      downloadButton(
+                        "download_line_chart_png",
+                        "Download chart as PNG",
+                        class = "govuk-button govuk-button--secondary",
+                        icon = NULL
+                      ),
+                      br(),
+                      br()
                     ),
-  
-                    # Wrap plot in spinner, so that it shows a spinner
-                    # when calculating/recalculating them
-                    # rather than keeping them visible but greyed out
-                    shinycssloaders::withSpinner(
-                      plotOutput("line_chart", height = 420)
+                    tabPanel(
+                      "Table",
+                      tags$h3(
+                        class = "govuk-heading-m",
+                        "Chosen metric for selected countries over time"
+                      ),
+                      textOutput("chosen_metric"),
+                      br(),
+                      DT::DTOutput("tbl_summary_page"),
+                      br(),
+                      downloadButton("export_csv_summary_table",
+                                     "Export CSV",
+                                     class = "govuk-button",
+                                     icon = NULL)
                     ),
-                    tags$p("Data source: Gapminder"),
-                    downloadButton("export_csv",
-                      "Export CSV",
-                      class = "govuk-button",
-                      icon = NULL
-                    ),
-                    # Download button for PNG
-                    downloadButton(
-                      "download_line_chart_png",
-                      "Download chart as PNG",
-                      class = "govuk-button govuk-button--secondary",
-                      icon = NULL
-                    ),
-                    br(),
-                    br()
-                  ),
-                  tabPanel(
-                    "Table",
-                    tags$h3(
-                      class = "govuk-heading-m",
-                      "Chosen metric for selected countries over time"
-                    ),
-                    textOutput("chosen_metric"),
-                    br(),
-                    DT::DTOutput("tbl_summary_page"),
-                    br(),
-                    downloadButton("export_csv_summary_table",
-                                   "Export CSV",
-                                   class = "govuk-button",
-                                   icon = NULL)
-                  ),
-                  tabPanel(
-                    "Report",
-                    tags$h2(
-                      class = "govuk-heading-m",
-                      "Customised report"
-                    ),
-                    tags$p("Download a customised report on a continent of your choice"),
-                    selectizeInput(
-                      "report_continent", "Continent",
-                      choices = c("All" = "All", as.character(.continents)),
-                      selected = "All",
-                      multiple = TRUE,
-                      options = list(maxItems = 1,
-                                     plugins = list("remove_button"),
-                                     dropdownParent = "body")
-                    ),
-                    downloadButton("export_report", "Export Report",
-                                   class = "govuk-button",
-                                   icon = NULL
-                    ),
-                    br(),
-                    br()
+                    tabPanel(
+                      "Report",
+                      tags$h2(
+                        class = "govuk-heading-m",
+                        "Customised report"
+                      ),
+                      tags$p("Download a customised report on a continent of your choice"),
+                      selectizeInput(
+                        "report_continent", "Continent",
+                        choices = c("All" = "All", as.character(.continents)),
+                        selected = "All",
+                        multiple = TRUE,
+                        options = list(maxItems = 1,
+                                       plugins = list("remove_button"),
+                                       dropdownParent = "body")
+                      ),
+                      downloadButton("export_report", "Export Report",
+                                     class = "govuk-button",
+                                     icon = NULL
+                      ),
+                      br(),
+                      br()
+                    )
                   )
                 )
-              )
-            ),
-            # Life expectancy page ----------------------------------------
-            ## Life expectancy comparison ----------------------------------
-            tabPanel(
-              "Life expectancy",
-              value = "life_expectancy",
-              
-              shiny::tags$div(
-                class = "app-page-with-side-nav",
-                
-                # Side navigation for page sections
-                page_side_nav(
-                  c(
-                    "Comparison" = "life-exp-comparison",
-                    "Distribution" = "life-exp-distribution",
-                    "GDP relationship" = "life-exp-gdp",
-                    "Trends" = "life-exp-trends"
-                  ),
-                  header_name = "Life expectancy pages"
+              ),
+              # Life expectancy page ----------------------------------------
+              ## Life expectancy comparison ----------------------------------
+              tabPanel(
+                "Life expectancy",
+                value = "life_expectancy",
+
+
+
+                shiny::tags$h1(
+                  class = "govuk-heading-xl",
+                  "Life expectancy"
                 ),
-                
-                # Main content for the Life expectancy page
-                shiny::tags$div(
-                  class = "app-page-with-side-nav__content",
-                  
-                  shiny::tags$h1(
-                    class = "govuk-heading-xl",
-                    "Life expectancy"
+
+                # Life expectancy comparison section
+                shiny::tags$section(
+                  id = "life-exp-comparison",
+                  class = "app-page-section",
+
+                  shiny::tags$h2(
+                    class = "govuk-heading-l",
+                    "Comparison"
                   ),
-                  
-                  # Life expectancy comparison section 
-                  shiny::tags$section(
-                    id = "life-exp-comparison",
-                    class = "app-page-section",
-                    
-                    shiny::tags$h2(
-                      class = "govuk-heading-l",
-                      "Comparison"
-                    ),
-                    
+
                   # Filter section
                   tags$div(
                     class = "filter-card",
@@ -282,24 +293,24 @@ app_ui <- function(request) {
                       )
                     )
                   ),
-                    # Tabs for life expectancy comparison 
-                    tabsetPanel(
-                      id = "pop_tabs",
-                      
-                      tabPanel(
-                        "Chart",
-                        div(
-                          class = "govuk-tabs__panel",
-                          textOutput(
-                            "life_exp_title",
-                            container = function(...) tags$h3(class = "govuk-heading-m",
-                                                              ...)
-                          ),
-                          tags$p("Mirrored bars show baseline (left) and comparison (right) for the same countries"),
-                          plotOutput("lifeexp_mirror_plot", height = 520)
-                        )
-                      ),
-                      
+                  # Tabs for life expectancy comparison
+                  tabsetPanel(
+                    id = "pop_tabs",
+
+                    tabPanel(
+                      "Chart",
+                      div(
+                        class = "govuk-tabs__panel",
+                        textOutput(
+                          "life_exp_title",
+                          container = function(...) tags$h3(class = "govuk-heading-m",
+                                                            ...)
+                        ),
+                        tags$p("Mirrored bars show baseline (left) and comparison (right) for the same countries"),
+                        plotOutput("lifeexp_mirror_plot", height = 520)
+                      )
+                    ),
+
                     tabPanel(
                       "Data table",
                       div(
@@ -315,45 +326,45 @@ app_ui <- function(request) {
                     )
                   )
                 ),
-          ## Life expectancy distribution -----------------------------------
-          shiny::tags$section(
-            id = "life-exp-distribution",
-            class = "app-page-section",
-            shiny::tags$h2(
-              class = "govuk-heading-l",
-              "Distribution"
-            ),
-              tags$div(
-                class = "filter-card",
-                tags$div(
-                  class = "filter-card__head",
-                  tags$h3("Filter")
-                ),
-                tags$div(
-                  class = "filter-card__body",
-                  selectizeInput(
-                    "dist_year", "Year",
-                    choices = .years,
-                    selected = max(.years),
-                    multiple = TRUE,
-                    options = list(maxItems = 1, plugins = list("remove_button"))
+                ## Life expectancy distribution -----------------------------------
+                shiny::tags$section(
+                  id = "life-exp-distribution",
+                  class = "app-page-section",
+                  shiny::tags$h2(
+                    class = "govuk-heading-l",
+                    "Distribution"
                   ),
-                  selectizeInput(
-                    "dist_continent", "Continent",
-                    choices = .continents,
-                    selected = "Europe",
-                    multiple = TRUE,
-                    options = list(maxItems = 1, plugins = list("remove_button"))
+                  tags$div(
+                    class = "filter-card",
+                    tags$div(
+                      class = "filter-card__head",
+                      tags$h3("Filter")
+                    ),
+                    tags$div(
+                      class = "filter-card__body",
+                      selectizeInput(
+                        "dist_year", "Year",
+                        choices = .years,
+                        selected = max(.years),
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      ),
+                      selectizeInput(
+                        "dist_continent", "Continent",
+                        choices = .continents,
+                        selected = "Europe",
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      ),
+                      selectizeInput(
+                        "dist_topn", "Countries shown",
+                        choices = c(10, 20, 30),
+                        selected = 20,
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      )
+                    )
                   ),
-                  selectizeInput(
-                    "dist_topn", "Countries shown",
-                    choices = c(10, 20, 30),
-                    selected = 20,
-                    multiple = TRUE,
-                    options = list(maxItems = 1, plugins = list("remove_button"))
-                  )
-                )
-              ),
                   tabsetPanel(
                     id = "pop_dist_tabs",
                     tabPanel(
@@ -392,46 +403,47 @@ app_ui <- function(request) {
                           container = function(...) tags$h3(class = "govuk-heading-m", ...)
                         ),
                         textOutput("life_exp_dist_subtitle_table"),
-                        tableOutput("population_ineq_table"),
+                        shinyGovstyle::govReactableOutput("population_ineq_table",
+                                                          caption = ""),
                         tags$p("Data source: Gapminder")
                       )
                     )
                   )
-              ),
-            ## Life expectancy vs GDP per capita ----------------------------
-          shiny::tags$section(
-            id = "life-exp-gdp",
-            class = "app-page-section",
+                ),
+                ## Life expectancy vs GDP per capita ----------------------------
+                shiny::tags$section(
+                  id = "life-exp-gdp",
+                  class = "app-page-section",
 
-            shiny::tags$h2(
-              class = "govuk-heading-l",
-              "GDP relationship"
-            ),
-                tags$div(
-                  class = "filter-card",
-                  tags$div(
-                    class = "filter-card__head",
-                    tags$h3("Filter")
+                  shiny::tags$h2(
+                    class = "govuk-heading-l",
+                    "GDP relationship"
                   ),
                   tags$div(
-                    class = "filter-card__body",
-                    selectizeInput(
-                      "scatter_year", "Year",
-                      choices = .years,
-                      selected = max(.years),
-                      multiple = TRUE,
-                      options = list(maxItems = 1, plugins = list("remove_button"))
+                    class = "filter-card",
+                    tags$div(
+                      class = "filter-card__head",
+                      tags$h3("Filter")
                     ),
-                    selectizeInput(
-                      "scatter_continent", "Continent",
-                      choices = c("All" = "All", stats::setNames(as.character(.continents),
-                                                                 as.character(.continents))),
-                      selected = "All",
-                      multiple = TRUE,
-                      options = list(maxItems = 1, plugins = list("remove_button"))
+                    tags$div(
+                      class = "filter-card__body",
+                      selectizeInput(
+                        "scatter_year", "Year",
+                        choices = .years,
+                        selected = max(.years),
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      ),
+                      selectizeInput(
+                        "scatter_continent", "Continent",
+                        choices = c("All" = "All", stats::setNames(as.character(.continents),
+                                                                   as.character(.continents))),
+                        selected = "All",
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      )
                     )
-                  )
-                ),
+                  ),
 
                   # Tabs
                   tabsetPanel(
@@ -462,71 +474,71 @@ app_ui <- function(request) {
                   )
                 ),
 
-              ## Life expectancy trends ------------------------------------
-          shiny::tags$section(
-            id = "life-exp-trends",
-            class = "app-page-section",
-            
-            shiny::tags$h2(
-              class = "govuk-heading-l",
-              "Trends"
-            ),
-            
-            tags$p("This page shows trends in life
+                ## Life expectancy trends ------------------------------------
+                shiny::tags$section(
+                  id = "life-exp-trends",
+                  class = "app-page-section",
+
+                  shiny::tags$h2(
+                    class = "govuk-heading-l",
+                    "Trends"
+                  ),
+
+                  tags$p("This page shows trends in life
                    expectancy using a line chart"),
-            
-            tags$h2(class = "govuk-heading-m",
-                    "Outputs"),
-            tabsetPanel(
-              id = "life_exp_trends_tabs",
-              tabPanel(
-                "Chart",
-                tags$h3(class = "govuk-heading-m",
-                        "Life expectancy trend by continent"),
-                plotOutput("continent_trend_plot", height = 520),
-                # Short description of insights
-                tags$p("Life expectancy has increased across all 
+
+                  tags$h2(class = "govuk-heading-m",
+                          "Outputs"),
+                  tabsetPanel(
+                    id = "life_exp_trends_tabs",
+                    tabPanel(
+                      "Chart",
+                      tags$h3(class = "govuk-heading-m",
+                              "Life expectancy trend by continent"),
+                      plotOutput("continent_trend_plot", height = 520),
+                      # Short description of insights
+                      tags$p("Life expectancy has increased across all
                 continents over time, with Europe and Oceania
                 consistently having the highest values."),
-                br(),
-                tags$p("Data source: Gapminder")
-          ),
-          tabPanel("Table",
-                   tags$h3(class = "govuk-heading-m",
-                           "Trends in life expectancy by continent"),
-                   tableOutput("continent_life_trends_table"),
-                   tags$p("Data source: Gapminder")
-                   )
-                   )
-                  )
-                )
-              )
-            ),
-            # Current population --------------------------------------------
-            tabPanel(
-              "Other charts",
-              value = "other_charts",
-              shinyGovstyle::gov_layout(
-                size = "full",
-                shinyGovstyle::heading_text("Current population", "l"),
-                tags$p("Illustrative snapshot from Gapminder: population by continent."),
-                tags$div(
-                  class = "filter-card",
-                  tags$div(
-                    class = "filter-card__head",
-                    tags$h2("Filter")
-                  ),
-                  tags$div(
-                    class = "filter-card__body",
-                    selectizeInput(
-                      "cont_pop_year", "Year",
-                      choices = .years,
-                      selected = max(.years),
-                      multiple = TRUE,
-                      options = list(maxItems = 1, plugins = list("remove_button"))
+                      br(),
+                      tags$p("Data source: Gapminder")
+                    ),
+                    tabPanel("Table",
+                             tags$h3(class = "govuk-heading-m",
+                                     "Trends in life expectancy by continent"),
+                             tableOutput("continent_life_trends_table"),
+                             tags$p("Data source: Gapminder")
                     )
                   )
-                ),
+                )
+
+              ),
+              # Current population --------------------------------------------
+              tabPanel(
+                "Other charts",
+                value = "other_charts",
+                shinyGovstyle::gov_layout(
+                  size = "full",
+                  shinyGovstyle::heading_text("Other charts", "xl"),
+                  shinyGovstyle::heading_text("Current population", "l"),
+                  tags$p("Illustrative snapshot from Gapminder: population by continent."),
+                  tags$div(
+                    class = "filter-card",
+                    tags$div(
+                      class = "filter-card__head",
+                      tags$h2("Filter")
+                    ),
+                    tags$div(
+                      class = "filter-card__body",
+                      selectizeInput(
+                        "cont_pop_year", "Year",
+                        choices = .years,
+                        selected = max(.years),
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
+                      )
+                    )
+                  ),
                   tabsetPanel(
                     id = "current_pop_tabs",
                     tabPanel(
@@ -554,7 +566,7 @@ app_ui <- function(request) {
                     )
                   )
                 ),
-            # GDP per capita -----------------------------------------------
+                # GDP per capita -----------------------------------------------
                 shinyGovstyle::heading_text("GDP per capita", "l"),
                 tags$p("Illustrative distribution from Gapminder: GDP per capita by continent."),
                 tags$div(
@@ -576,33 +588,33 @@ app_ui <- function(request) {
                 ),
                 tabsetPanel(
                   id = "gdp_by_cap_tabs",
-                    # Tab for chart 
-                    tabPanel(
-                      "Chart",
-                      tags$h3(class = "govuk-heading-m",
-                              "GDP per capita by continent"),
-                      textOutput("gdp_per_cap_yr_plot"),
-                      plotOutput("gdp_boxplot", height = 520),
-                      tags$p("Data source: Gapminder")
-                    ),
-                    # Tab for data table
-                    tabPanel(
-                      "Table",
-                      tags$h3(class = "govuk-heading-m",
-                              "GDP per capita by continent"),
-                      textOutput("gdp_per_cap_yr"),
-                      tableOutput("gdp_table"),
-                      tags$p("Data source: Gapminder")
-                    )
+                  # Tab for chart
+                  tabPanel(
+                    "Chart",
+                    tags$h3(class = "govuk-heading-m",
+                            "GDP per capita by continent"),
+                    textOutput("gdp_per_cap_yr_plot"),
+                    plotOutput("gdp_boxplot", height = 520),
+                    tags$p("Data source: Gapminder")
+                  ),
+                  # Tab for data table
+                  tabPanel(
+                    "Table",
+                    tags$h3(class = "govuk-heading-m",
+                            "GDP per capita by continent"),
+                    textOutput("gdp_per_cap_yr"),
+                    tableOutput("gdp_table"),
+                    tags$p("Data source: Gapminder")
                   )
-                
-            ),
+                )
+
+              ),
               # Definitions ----------------------------------------------
               tabPanel(
                 "Definitions", value = "definition",
                 shinyGovstyle::gov_layout(
                   size = "full",
-                  shinyGovstyle::heading_text("Definitions", "l"),
+                  shinyGovstyle::heading_text("Definitions", "xl"),
                   tags$p("This dashboard uses the Gapminder dataset from the R package \"gapminder\"."),
                   tags$h2(class = "govuk-heading-m",
                           "Variables"),
@@ -617,7 +629,7 @@ app_ui <- function(request) {
                               "Countries covered in the dataset by continent"),
                       plotOutput("coverage_plot", height = 420),
                       tags$p("Data source: Gapminder")
-                    ), 
+                    ),
                     tabPanel(
                       "Table",
                       tags$h3(class = "govuk-heading-m",
@@ -628,62 +640,65 @@ app_ui <- function(request) {
                   )
                 )
               ),
-            # Example map ----------------------------------------------
-            tabPanel(
-              "Example map",
-              value = "uk_map",
-              shinyGovstyle::gov_layout(
-                size = "full",
-                shinyGovstyle::heading_text("Population by Local Authority", "l"),
-                tags$div(
-                  class = "filter-card",
+              # Example map ----------------------------------------------
+              tabPanel(
+                "Example map",
+                value = "uk_map",
+                shinyGovstyle::gov_layout(
+                  size = "full",
+                  shinyGovstyle::heading_text("Population by Local Authority", "xl"),
                   tags$div(
-                    class = "filter-card__head",
-                    tags$h2("Filter")
-                  ),
-                  tags$div(
-                    class = "filter-card__body",
-                    selectInput(
-                      "selected_la",
-                      "Select a local authority",
-                      choices = NULL,
-                      selected = NULL
+                    class = "filter-card",
+                    tags$div(
+                      class = "filter-card__head",
+                      tags$h2("Filter")
                     ),
-                    checkboxInput(
-                      "reverse_palette",
-                      "Reverse colour scale",
-                      value = FALSE
-                    )
-                  )
-                ),
-                tags$h2(class = "govuk-heading-m", "Example dynamic text"),
-                textOutput("uk_map_summary_text"),
-                tabsetPanel(
-                  tabPanel(
-                    "Map",
-                    leaflet::leafletOutput("la_map", height = 700),
-                    tags$p("Data source: Nomis / ONS"),
-                    downloadButton(
-                      "map_export_csv",
-                      "Export CSV",
-                      class = "govuk-button",
-                      icon = NULL
+                    tags$div(
+                      class = "filter-card__body",
+                      selectInput(
+                        "selected_la",
+                        "Select a local authority",
+                        choices = NULL,
+                        selected = NULL
+                      ),
+                      checkboxInput(
+                        "reverse_palette",
+                        "Reverse colour scale",
+                        value = FALSE
+                      )
                     )
                   ),
-                  tabPanel(
-                    "Table",
-                    tableOutput("map_tbl")
+                  tags$h2(class = "govuk-heading-m", "Example dynamic text"),
+                  textOutput("uk_map_summary_text"),
+                  tabsetPanel(
+                    tabPanel(
+                      "Map",
+                      leaflet::leafletOutput("la_map", height = 700),
+                      tags$p("Data source: Nomis / ONS"),
+                      downloadButton(
+                        "map_export_csv",
+                        "Export CSV",
+                        class = "govuk-button",
+                        icon = NULL
+                      )
+                    ),
+                    tabPanel(
+                      "Table",
+                      tableOutput("map_tbl")
+                    )
                   )
                 )
               )
             )
           )
-        ),
+        )
+      ),
       shinyGovstyle::footer(full = TRUE)
+
 
     )
   )
-  
+
 }
 
 #' Add external Resources to the Application
@@ -695,19 +710,32 @@ app_ui <- function(request) {
 #' @importFrom golem add_resource_path activate_js favicon bundle_resources
 #' @noRd
 golem_add_external_resources <- function() {
-  add_resource_path(
-    "www",
-    app_sys("app", "www")
-  )
+
+  add_resource_path("www", app_sys("app", "www"))
+
+  # Select organisation
+  organisation <- "department-of-health-social-care"
+
+  # Find org colour from list
+  # List taken from gov frontend
+  org_colour <- govuk_org_colour(organisation)
 
   tags$head(
     favicon(),
+    tags$style(
+      HTML(
+        sprintf(
+          ":root {
+           --department-colour: %s;
+         }",
+          org_colour
+        )
+      )
+    ),
     bundle_resources(
       path = app_sys("app", "www"),
       app_title = "dhscshinytemplate"
-    ),
-    shiny::tags$link(rel = "stylesheet", type = "text/css", href = "www/styles.css"),
-    tags$script(src = "www/app.js")
+    )
     # Add here other external resources
     # for example, you can add shinyalert::useShinyalert()
   )

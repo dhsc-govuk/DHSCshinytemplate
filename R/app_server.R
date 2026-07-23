@@ -19,89 +19,10 @@ app_server <- function(input, output, session) {
   continents <- sort(unique(gap$continent))
   countries_all <- sort(unique(gap$country))
 
-  # Map service navigation input IDs to hidden tab values
-  nav_map <- c(
-    sn_landing = "landing",
-    sn_summary = "summary",
-    sn_life_expectancy = "life_expectancy",
-    sn_other_charts = "other_charts",
-    sn_uk_map = "uk_map",
-    sn_definition = "definition"
-  )
-  
-  # Create one observer per service navigation item
-  purrr::iwalk(nav_map, function(tab_value, input_id) {
-    shiny::observeEvent(
-      input[[input_id]],
-      {
-        shiny::updateTabsetPanel(
-          session = session,
-          inputId = "tab-container",
-          selected = tab_value
-        )
-      },
-      ignoreInit = TRUE
-    )
-  })
-  
-  # Update the hidden tabset when the top navigation value changes
-  observeEvent(input$`service_navigation`, {
-    print("Updating tabset panel")
-    shiny::updateTabsetPanel(
-      session = session,
-      inputId = "tab-container",
-      selected = input$`service_navigation`
-    )
-  })
-  
-  # tab selection -> sidebar highlight
-  observe({
-    req(input$`tab-container`)
-    
-    session$sendCustomMessage(
-      "set-active-contents-link",
-      list(value = input$`tab-container`)
-    )
-  })
-  
-  # Set the initial active navigation item after the UI has finished rendering.
-  session$onFlushed(function() {
-    session$sendCustomMessage(
-      "set-active-contents-link",
-      list(value = "landing")
-    )
-  }, once = TRUE)
 
-  # Keep country choices in sync with continent selection on Summary
-  observeEvent(input$continent,
-    {
-      sel_cont <- input$continent[[1]]
-
-      available <- if (!is.null(sel_cont) && sel_cont != "All") {
-        sort(unique(gap$country[gap$continent == sel_cont]))
-      } else {
-        countries_all
-      }
-      
-      # Preserve any previously selected countries that are still valid
-      # after the continent filter changes.
-      current <- input$countries %||% character(0)
-      keep <- intersect(current, available)
-
-      # Fall back to a sensible default selection so the chart and table
-      # do not render empty after changing continent.
-      if (length(keep) == 0) {
-        keep <- intersect(c("United Kingdom", "France", "Germany", "Canada", "Australia"), available)
-        if (length(keep) == 0) keep <- head(available, 5)
-      }
-
-      updateSelectizeInput(session, "countries", choices = available, selected = keep, server = TRUE)
-    },
-    ignoreInit = FALSE
-  )
 
   # Summary page --------------------------------------------------
-  
+
   # Reactive: filtered_summary()
   # Filters Gapminder data based on selected:
   # - metric
@@ -145,10 +66,10 @@ app_server <- function(input, output, session) {
       ) |>
       dplyr::select(
         c(Year,
-        Country,
-        Continent,
-        Metric,
-        Value)
+          Country,
+          Continent,
+          Metric,
+          Value)
       ) |>
 
       dplyr::arrange(Country, Year)
@@ -191,19 +112,19 @@ app_server <- function(input, output, session) {
   # Guarded to prevent rendering during reactive instability
   make_line_chart <- function() {
     d <- filtered_summary()
-    
+
     # Require these things before rendering
     req(
       input$countries,
       length(input$countries) > 0,
-      # Limit the number of series to match the 
+      # Limit the number of series to match the
       # available six-colour chart palette.
       length(unique(d$Country)) <= 6
     )
-    
+
     # If there is no data, show warning
     validate(need(nrow(d) > 0, "No data for selected filters."))
-    
+
     metric <- unique(d$Metric)[1]
     y_lab <- dplyr::case_when(
       metric == "lifeExp" ~ "Life expectancy (years)",
@@ -211,7 +132,7 @@ app_server <- function(input, output, session) {
       metric == "pop" ~ "People",
       TRUE ~ "Value"
     )
-    
+
     ggplot2::ggplot(d, ggplot2::aes(x = Year, y = Value, group = Country, colour = Country)) +
       ggplot2::geom_line(linewidth = 0.9) +
       # 'main' only has 4 colours; use 'main6' for multi-series charts
@@ -227,13 +148,13 @@ app_server <- function(input, output, session) {
       ) +
       ggplot2::theme(legend.position = "right")
   }
-  
-  
+
+
   output$line_chart <- renderPlot({
     make_line_chart()
   },
   alt = "A plot of the chosen metric for selected countries over time")
-  
+
   output$chosen_metric <- renderText({
     req(input$indicator)
 
@@ -251,7 +172,7 @@ app_server <- function(input, output, session) {
       full_metric
     )
   })
-  
+
   # Give an example of a Datatable table
   # (as opposed to a basic shiny table)
   output$tbl_summary_page <- DT::renderDT(
@@ -273,20 +194,20 @@ app_server <- function(input, output, session) {
 
   # Clear filters
   observeEvent(input$clear_filters,
-    ignoreInit = TRUE,
-    {
-      updateSelectizeInput(session, "indicator", selected = "lifeExp")
-      updateSelectizeInput(session, "continent", selected = "All")
-      updateSelectizeInput(session, "country_focus", selected = "Total")
-      updateSelectizeInput(
-        session,
-        "countries",
-        selected = c("United Kingdom", "France", "Germany", "Canada", "Australia")
-      )
-    }
+               ignoreInit = TRUE,
+               {
+                 updateSelectizeInput(session, "indicator", selected = "lifeExp")
+                 updateSelectizeInput(session, "continent", selected = "All")
+                 updateSelectizeInput(session, "country_focus", selected = "Total")
+                 updateSelectizeInput(
+                   session,
+                   "countries",
+                   selected = c("United Kingdom", "France", "Germany", "Canada", "Australia")
+                 )
+               }
   )
 
-  # Download for csv 
+  # Download for csv
   # (Shared helper used by both the chart and summary table exports)
   export_handler_summary <- function(filename_prefix) {
     downloadHandler(
@@ -296,7 +217,7 @@ app_server <- function(input, output, session) {
   }
   output$export_csv <- export_handler_summary("gapminder")
   output$export_csv_summary_table <- export_handler_summary("gapminder")
-  
+
   # Create a PNG file of the chart when the user clicks download
   output$download_line_chart_png <- downloadHandler(
     filename = function() {
@@ -304,14 +225,14 @@ app_server <- function(input, output, session) {
     },
     content = function(file) {
       png(filename = file, width = 1600, height = 900, res = 150)
-      
+
       p <- make_line_chart()
       print(p)
       dev.off()
     }
   )
-  
-  
+
+
   ## Report -----------------------------------------------
   # Create a customised report, using the code in inst/app/www/report.qmd
   output$export_report <- downloadHandler(
@@ -320,10 +241,10 @@ app_server <- function(input, output, session) {
       shinybusy::show_modal_spinner(
         text = "Generating HTML report. This can take up to 30 seconds."
       )
-      
+
       # Always remove the spinner, even if the report render fails.
       on.exit(shinybusy::remove_modal_spinner(), add = TRUE)
-      
+
       # quarto is picky over rendering location, so generate then copy
       quarto::quarto_render(
         input = here::here("inst", "app", "www", "report.qmd"),
@@ -369,7 +290,7 @@ app_server <- function(input, output, session) {
     validate(need(nrow(d2) > 0, "No complete country pairs for the two years."))
 
     # Build mirrored dataset: left year negative, right year positive
-    d_left <- d2 |> 
+    d_left <- d2 |>
       dplyr::mutate(
         Year = y_left,
         Side = paste0("Life expectancy ", y_left),
@@ -403,8 +324,8 @@ app_server <- function(input, output, session) {
     d <- lifeexp_mirror_df()
 
     max_x <- max(abs(d$LifeExp), na.rm = TRUE)
-    
-    # Add in gridlines 
+
+    # Add in gridlines
     breaks_y <- scales::pretty_breaks(n = 6)(c(-max_x, max_x))
     breaks_y <- breaks_y[breaks_y >= - max_x & breaks_y <= max_x]
     breaks_grid <- setdiff(breaks_y, 0)
@@ -440,40 +361,12 @@ app_server <- function(input, output, session) {
       )
   },
   alt = "A plot of life expectancy change in the selected continent")
-  
+
   output$life_exp_title <- renderText({
     y_left <- as.integer(input$lexp_year_left[[1]])
     y_right <- as.integer(input$lexp_year_right[[1]])
     cont <- input$lexp_continent[[1]]
-    
-    paste0("Life expectancy change in ",
-           cont,
-           " (",
-           y_left,
-           " vs ",
-           y_right,
-           ")")
-  })
-  
-  output$life_exp_table_title <- renderText({
-    y_left <- as.integer(input$lexp_year_left[[1]])
-    y_right <- as.integer(input$lexp_year_right[[1]])
-    cont <- input$lexp_continent[[1]]
-    
-    paste0("Life expectancy change in ",
-           cont,
-           " (",
-           y_left,
-           " vs ",
-           y_right,
-           ")")
-  })
-  
-  life_exp_table_title <- reactive({
-    y_left <- as.integer(input$lexp_year_left[[1]])
-    y_right <- as.integer(input$lexp_year_right[[1]])
-    cont <- input$lexp_continent[[1]]
-    
+
     paste0("Life expectancy change in ",
            cont,
            " (",
@@ -483,7 +376,35 @@ app_server <- function(input, output, session) {
            ")")
   })
 
-  
+  output$life_exp_table_title <- renderText({
+    y_left <- as.integer(input$lexp_year_left[[1]])
+    y_right <- as.integer(input$lexp_year_right[[1]])
+    cont <- input$lexp_continent[[1]]
+
+    paste0("Life expectancy change in ",
+           cont,
+           " (",
+           y_left,
+           " vs ",
+           y_right,
+           ")")
+  })
+
+  life_exp_table_title <- reactive({
+    y_left <- as.integer(input$lexp_year_left[[1]])
+    y_right <- as.integer(input$lexp_year_right[[1]])
+    cont <- input$lexp_continent[[1]]
+
+    paste0("Life expectancy change in ",
+           cont,
+           " (",
+           y_left,
+           " vs ",
+           y_right,
+           ")")
+  })
+
+
   output$population_table <- render_gov_table(
     input_id = "population_table_gov",
     caption = life_exp_table_title(),
@@ -501,9 +422,11 @@ app_server <- function(input, output, session) {
         dplyr::rename(
           `Life expectancy` = LifeExp
         )
-    }
+    },
+    # Set which columns are numeric (and therefore aligned right)
+    num_col = c(3)
   )
-  
+
   # Download for csv
   export_handler_pop <- function(filename_prefix) {
     downloadHandler(
@@ -558,48 +481,48 @@ app_server <- function(input, output, session) {
         status = factor(status, levels = c("Better", "Similar", "Worse"))
       )
   })
-  
+
   output$life_exp_dist_title <- renderText({
     cont <- input$dist_continent[[1]]
-    
+
     paste0("Life expectancy by country (",
            cont,
            ")")
-    })
+  })
 
   output$life_exp_dist_subtitle <- renderText({
     show_ci <- isTRUE(input$mort_show_ci)
     cont <- input$dist_continent[[1]]
     yr <- input$dist_year[[1]]
-    
+
     paste0(
       "Year: ",
       yr,
       if (show_ci) " (band is 2.5% to 97.5% across years)" else ""
     )
   })
-  
+
   # Same title & subtitle for table (note output IDs need to be unique)
   output$life_exp_dist_title_table <- renderText({
     cont <- input$dist_continent[[1]]
-    
+
     paste0("Life expectancy by country (",
            cont,
            ")")
   })
-  
+
   output$life_exp_dist_subtitle_table <- renderText({
     show_ci <- isTRUE(input$mort_show_ci)
     cont <- input$dist_continent[[1]]
     yr <- input$dist_year[[1]]
-    
+
     paste0(
       "Year: ",
       yr,
       if (show_ci) " (band is 2.5% to 97.5% across years)" else ""
     )
   })
-  
+
   output$population_ineq_plot <- renderPlot({
     d <- dist_df()
     validate(need(nrow(d) > 0, "No data for selected filters."))
@@ -609,12 +532,12 @@ app_server <- function(input, output, session) {
     show_ci <- isTRUE(input$mort_show_ci)
     cont <- input$dist_continent[[1]]
     yr <- input$dist_year[[1]]
-    
+
     avg_val <- unique(d$avg)
-    
+
     # Get the number of plotted countries
     n_countries <- nrow(d)
-    
+
 
     ggplot2::ggplot(d, ggplot2::aes(x = country, y = lifeExp, fill = status)) +
       ggplot2::geom_col(width = 0.8) +
@@ -647,24 +570,46 @@ app_server <- function(input, output, session) {
                      plot.margin = ggplot2::margin(30, 10, 5.5, 5.5))
   },
   alt = "A plot of life expectancy by country in the selected continent")
-  
-  output$population_ineq_table <- renderTable({
-    dist_df() |>
-      dplyr::rename(
-        Country = country,
-        `Life expectancy` = lifeExp,
-        `Low band` = lo,
-        `High band` = hi,
-        Status = status
-      )
-  }, striped = FALSE, bordered = FALSE, spacing = "s")
-  
+
+  output$population_ineq_table <- shinyGovstyle::renderGovReactable({
+    shinyGovstyle::govReactable(
+      df = dist_df() |>
+        dplyr::select(country,
+                      lifeExp,
+                      lo,
+                      hi,
+                      status) |>
+        # round all numeric columns to the nearest 2dp
+        dplyr::mutate(
+          dplyr::across(
+            dplyr::where(is.numeric),
+            ~ round(.x, 2)
+          )
+        ) |>
+        dplyr::rename(
+          Country = country,
+          `Life expectancy` = lifeExp,
+          `Low band` = lo,
+          `High band` = hi,
+          Status = status
+        ),
+      # Columns to right-align
+      # Note that numeric columns should be right-aligned!
+      right_col = c("Life expectancy",
+                    "Low band",
+                    "High band",
+                    "Average"),
+      page_size = 10,
+    )
+  })
+
+
   observeEvent(TRUE, {
     if (is.null(input$mort_show_ci)) {
       session$sendInputMessage("mort_show_ci", list(value = FALSE))
     }
   }, once = TRUE)
-  
+
   # Life expectancy and GDP ------------------------------
   # Healthcare Use: scatter of GDP per capita vs life expectancy
   life_exp_gdp <- reactive({
@@ -680,25 +625,25 @@ app_server <- function(input, output, session) {
         dplyr::filter(continent == cont)
     }
     d
-    })
-  
+  })
+
   # Create subtitle
   output$life_exp_gdp_subtitle <- renderText({
     yr <- as.integer(input$scatter_year[[1]])
-    
+
     paste0("Year: ", yr)
   })
-  
-  
+
+
   output$year_life_exp_gdp <- renderText({
     yr <- as.integer(input$scatter_year[[1]])
     paste0("Year: ", yr)
   })
-    
+
   output$life_exp_scatter_plot <- plotly::renderPlotly({
     d <- life_exp_gdp()
     print(d)
-    
+
     # Check there is data
     validate(need(nrow(d) > 0, "No data for selected filters."))
 
@@ -714,8 +659,8 @@ app_server <- function(input, output, session) {
                      "<br>Life expectancy:", round(lifeExp, 1),
                      "<br>GDP per capita:", scales::dollar(gdpPercap,
                                                            accuracy = 1)
-                   ))) +   
-      ggplot2::geom_point(alpha = 0.85, size = 3) + 
+                   ))) +
+      ggplot2::geom_point(alpha = 0.85, size = 3) +
       ggplot2::scale_x_log10(labels = scales::label_dollar(accuracy = 1)) +
       afcharts::scale_colour_discrete_af("main6") +
       ggplot2::labs(
@@ -726,14 +671,14 @@ app_server <- function(input, output, session) {
       ) +
       ggplot2::theme(legend.position = "top")
 
-    
+
     plotly::ggplotly(p, tooltip = "text")
   })
-    #,
+  #,
   #alt = "A plot of GDP per capita and life expectancy"
   output$life_exp_gdp_table <- renderTable({
     d <- life_exp_gdp()
-    
+
     d |>
       dplyr::select(country,
                     continent,
@@ -744,7 +689,7 @@ app_server <- function(input, output, session) {
                     `Life Expectancy` = lifeExp,
                     `GDP per capita` = gdpPercap)
   }, striped = FALSE, bordered = FALSE, spacing = "s")
-  
+
   # Life expectancy: continent trends
   continent_trends_life <- reactive({
     d <- gap |>
@@ -826,25 +771,25 @@ app_server <- function(input, output, session) {
       )
   },
   alt = "A plot of current life expectancy by continent")
-  
+
   output$current_pop_table <- renderTable({
-    d <- 
+    d <-
       current_pop() |>
-        dplyr::rename(Continent = continent,
-                      Population= pop,
-                      `Population (millions)` = pop_m)
+      dplyr::rename(Continent = continent,
+                    Population= pop,
+                    `Population (millions)` = pop_m)
   }, striped = FALSE, bordered = FALSE, spacing = "s")
-  
+
   output$current_pop_year_plot <- renderText({
     yr <- as.integer(input$cont_pop_year[[1]])
-    
+
     paste("Selected year:",
           yr)
   })
-  
+
   output$current_pop_year <- renderText({
     yr <- as.integer(input$cont_pop_year[[1]])
-    
+
     paste("Selected year:",
           yr)
   })
@@ -866,7 +811,7 @@ app_server <- function(input, output, session) {
     d <- gdp_per_cap_dist()
 
     ggplot2::ggplot(d, ggplot2::aes(x = continent,
-                                    y = gdpPercap, 
+                                    y = gdpPercap,
                                     fill = continent)) +
       ggplot2::geom_boxplot(outlier.alpha = 0.3,
                             show.legend = FALSE) +
@@ -875,16 +820,16 @@ app_server <- function(input, output, session) {
         x = NULL,
         y = "GDP per capita (log scale)",
       ) +
-    ggplot2::scale_fill_manual(
-      values = rep("#D9D9D9",
-                   length(unique(d$continent)))
-    )
+      ggplot2::scale_fill_manual(
+        values = rep("#D9D9D9",
+                     length(unique(d$continent)))
+      )
   },
   alt = "A plot of GDP per capita by continent")
-  
+
   output$gdp_per_cap_yr_plot <- renderText({
     yr <- as.integer(input$gdp_year[[1]])
-    
+
     paste("Year:",
           yr)
   })
@@ -926,7 +871,7 @@ app_server <- function(input, output, session) {
     spacing = "s"
   )
 
-  
+
 
   # Logic for map --------------------------------------------------------
   # Load mapped LA data once at startup (takes 0.2s)
@@ -989,7 +934,7 @@ app_server <- function(input, output, session) {
       )
 
     af_cols <- afcharts::af_colour_palettes$main6
-    
+
     pal <- leaflet::colorNumeric(
       palette = colorRampPalette(af_cols)(100),
       domain = x$Value,
@@ -1055,7 +1000,7 @@ app_server <- function(input, output, session) {
       )
     }
   )
-  
+
   # Definitions ---------------------------------------------
   output$definition_table <- renderTable(
     {
@@ -1076,7 +1021,7 @@ app_server <- function(input, output, session) {
     bordered = FALSE,
     spacing = "s"
   )
-  
+
   country_coverage <- reactive({
     d <- gap |>
       dplyr::group_by(continent) |>
@@ -1087,10 +1032,10 @@ app_server <- function(input, output, session) {
       ) |>
       dplyr::mutate(continent = reorder(continent, countries))
   })
-  
+
   output$coverage_plot <- renderPlot({
     d <- country_coverage()
-    
+
     ggplot2::ggplot(d, ggplot2::aes(x = continent, y = countries, fill = continent)) +
       ggplot2::geom_col(show.legend = FALSE) +
       ggplot2::coord_flip() +
@@ -1101,10 +1046,10 @@ app_server <- function(input, output, session) {
       )
   },
   alt = "A plot of countries covered in the dataset by continent")
-  
+
   output$coverage_tbl <- renderTable({
     d <- country_coverage()
-    
+
     d |>
       dplyr::rename(
         Continent = continent,
@@ -1113,5 +1058,142 @@ app_server <- function(input, output, session) {
       )
   })
 
-  
+  # Observers -----------------------------------------
+
+  # Map top-level page values to their sidebar functions
+  page_nav_registry <- list(
+    life_expectancy = life_expectancy_side_nav_ui
+
+    # Add more sidebar functions here later
+    # summary = summary_side_nav_ui,
+    # other_charts = other_charts_side_nav_ui
+  )
+
+  # Render the section navigation for the active page
+  output$page_side_nav <- renderUI({
+    # Read the current page
+    active_page <- input[["tab-container"]]
+
+    # Stop until the tabset has initialised
+    req(active_page)
+
+    # Find the registered navigation function
+    nav_function <- page_nav_registry[[active_page]]
+
+    # Return no content for pages without section navigation
+    if (is.null(nav_function)) {
+      return(NULL)
+    }
+
+    # Build the navigation
+    nav_function()
+  })
+
+  # Keep the dynamic navigation active while its column is hidden
+  outputOptions(
+    output,
+    "page_side_nav",
+    suspendWhenHidden = FALSE
+  )
+
+  # Update the application layout when the top-level page changes
+  observeEvent(
+    input[["tab-container"]],
+    {
+      # Read the active page value
+      active_page <- input[["tab-container"]]
+
+      # Check whether the active page has registered navigation
+      has_navigation <- active_page %in% names(page_nav_registry)
+
+      if (has_navigation) {
+        # Show the complete navigation column
+        shinyjs::removeClass(
+          id = "app-shell",
+          class = "app-shell--no-navigation"
+        )
+      } else {
+        # Hide the complete navigation column
+        shinyjs::addClass(
+          id = "app-shell",
+          class = "app-shell--no-navigation"
+        )
+      }
+    },
+    ignoreInit = FALSE
+  )
+
+  # Map service navigation input IDs to hidden tab values
+  nav_map <- c(
+    sn_landing = "landing",
+    sn_summary = "summary",
+    sn_life_expectancy = "life_expectancy",
+    sn_other_charts = "other_charts",
+    sn_uk_map = "uk_map",
+    sn_definition = "definition"
+  )
+
+  # Create one observer per service navigation item
+  purrr::iwalk(nav_map, function(tab_value, input_id) {
+    shiny::observeEvent(
+      input[[input_id]],
+      {
+        shiny::updateTabsetPanel(
+          session = session,
+          inputId = "tab-container",
+          selected = tab_value
+        )
+      },
+      ignoreInit = TRUE
+    )
+  })
+
+  # Update the hidden tabset when the top navigation value changes
+  observeEvent(input$`service_navigation`, {
+    print("Updating tabset panel")
+    shiny::updateTabsetPanel(
+      session = session,
+      inputId = "tab-container",
+      selected = input$`service_navigation`
+    )
+  })
+
+  # tab selection -> sidebar highlight
+  observe({
+    req(input$`tab-container`)
+
+    session$sendCustomMessage(
+      "set-active-contents-link",
+      list(value = input$`tab-container`)
+    )
+  })
+
+  # Keep country choices in sync with continent selection on Summary
+  observeEvent(input$continent,
+               {
+                 sel_cont <- input$continent[[1]]
+
+                 available <- if (!is.null(sel_cont) && sel_cont != "All") {
+                   sort(unique(gap$country[gap$continent == sel_cont]))
+                 } else {
+                   countries_all
+                 }
+
+                 # Preserve any previously selected countries that are still valid
+                 # after the continent filter changes.
+                 current <- input$countries %||% character(0)
+                 keep <- intersect(current, available)
+
+                 # Fall back to a sensible default selection so the chart and table
+                 # do not render empty after changing continent.
+                 if (length(keep) == 0) {
+                   keep <- intersect(c("United Kingdom", "France", "Germany", "Canada", "Australia"), available)
+                   if (length(keep) == 0) keep <- head(available, 5)
+                 }
+
+                 updateSelectizeInput(session, "countries", choices = available, selected = keep, server = TRUE)
+               },
+               ignoreInit = FALSE
+  )
+
 } # end of server function - do not delete!
