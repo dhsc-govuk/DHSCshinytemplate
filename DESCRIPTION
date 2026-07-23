@@ -15,9 +15,12 @@ Imports:
     gapminder,
     ggplot2,
     golem,
+    here,
     leaflet,
     nomisdata,
     plotly,
+    purrr,
+    quarto,
     scales,
     sf,
     shiny,
@@ -25,6 +28,7 @@ Imports:
     shinycssloaders,
     shinyGovstyle (>= 0.2.0),
     shinyjs,
+    stringr,
     tidyr
 Encoding: UTF-8
 LazyData: true
