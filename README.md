@@ -66,13 +66,15 @@ The main branch contains a significant amount of code, so we recommend that user
 
 Once you have cloned the repo to RStudio/VS Code, run the following four commands in the console one at a time:
 
-install.packages("devtools")
+`install.packages(c("pak",
+                    "pkgload"
+))`
 
-devtools::install_deps(dependencies = TRUE)
+`pak::local_install_dev_deps()`
 
-devtools::load_all()
+`pkgload::load_all()`
 
-dhscshinytemplate::run_app()
+`dhscshinytemplate::run_app()`
 
 The dashboard should then pop up in a new window. Note that each of these steps should take under a minute, aside from the second step (install_deps) which may take up to an hour, but it should show you the packages that it is installing rather than appearing frozen.
 
