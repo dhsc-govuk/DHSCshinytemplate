@@ -727,3 +727,81 @@ body {
     width: max-content;
   }
 }
+
+/* Mobile header layout */
+@media (max-width: 640px) {
+
+  /* Reduce the outer header spacing */
+  header.govuk-header {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Allow the header content to wrap */
+  header .govuk-header__container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    flex-wrap: wrap !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  /* Allow the homepage link to use the available width */
+  .govuk-header__logo,
+  .govuk-header__logo .govuk-header__link--homepage {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .govuk-header__logo .govuk-header__link--homepage {
+    display: flex !important;
+    white-space: normal !important;
+  }
+
+  /* Stack the logo and organisation name vertically */
+  .govuk-header__logotype {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0 !important;
+    line-height: 1.1 !important;
+    white-space: normal !important;
+    width: 100% !important;
+  }
+
+  /* Allow the organisation name to wrap */
+  .govuk-header__logotype-text {
+    margin: 4px 0 0 !important;
+    white-space: normal !important;
+    line-height: 1.15 !important;
+    font-size: 22px !important;
+  }
+
+  /* Product or service name, when one is supplied */
+  .govuk-header__product-name {
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: normal !important;
+    line-height: 1.15 !important;
+  }
+
+  /* Resize the custom DHSC SVG logo */
+  .govuk-header__logo img {
+    width: auto !important;
+    height: auto !important;
+    max-width: 250px !important;
+    max-height: none !important;
+  }
+
+  /* Stack secondary header content underneath */
+  .govuk-header__content {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    white-space: normal !important;
+  }
+
+  .govuk-header__content > * {
+    white-space: normal !important;
+  }
+}
