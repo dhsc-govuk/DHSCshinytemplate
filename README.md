@@ -6,6 +6,35 @@ A Shiny dashboard template demonstrating how to build accessible, GOV.UK-aligned
 - `{golem}` to provide a modular, production-ready structure for Shiny applications.
 - Gapminder data for illustration
 
+## Purpose
+
+This repository provides a reusable template for building accessible,
+GOV.UK-aligned Shiny dashboards.
+
+It is designed for analysts and developers working in government or
+public sector contexts who want to:
+- Build dashboards following GOV.UK design principles
+- Use a modular, production-ready Shiny structure
+- Apply consistent chart styling
+
+This repository is intended as a starting point/template rather than a
+fully featured application.
+
+
+## Prerequisites
+
+- R (>= 4.2 recommended)
+- RStudio or VS Code
+- Git
+
+
+## Data
+
+This repository uses the Gapminder dataset for demonstration purposes.
+
+No real DHSC or sensitive data is included.
+
+
 ## Overview screenshots
 Screenshot 1
 ![Dashboard screenshot1](man/figures/dashboard1.png)
@@ -47,8 +76,10 @@ dhscshinytemplate::run_app()
 
 The dashboard should then pop up in a new window. Note that each of these steps should take under a minute, aside from the second step (install_deps) which may take up to an hour, but it should show you the packages that it is installing rather than appearing frozen.
 
-### How to set up renv (package control)
-James R to complete
+If installation fails, check that system dependencies are installed and
+retry `devtools::install_deps(dependencies = TRUE)`.
+
+
 
 ## Contents
 
@@ -95,6 +126,11 @@ This dashboard follows GOV.UK and AF analytical design standards:
 
 ## QA Status of the repo
 This repo has been fully QAd by the DHSC Data Science team.
+
+This is a maintained template intended for reuse.
+
+Support is provided on a best-effort basis. 
+
 
 ## Code of Conduct
 
