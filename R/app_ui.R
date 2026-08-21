@@ -106,62 +106,54 @@ app_ui <- function(request) {
                       class = "filter-card__head",
                       tags$h3("Filter")
                     ),
-                      tags$div(
-                        class = "filter-card__body",
-                        selectizeInput(
-                          "scatter_year", "Year",
-                          choices = .years,
-                          selected = max(.years),
-                          multiple = TRUE,
-                          options = list(maxItems = 1, plugins = list("remove_button"))
-                        ),
-                        selectizeInput(
-                          "scatter_continent", "Continent",
-                          choices = c("All" = "All", stats::setNames(as.character(.continents),
-                                                                     as.character(.continents))),
-                          selected = "All",
-                          multiple = TRUE,
-                          options = list(maxItems = 1, plugins = list("remove_button"))
-                        )
-                      )
-                    ),
-
-                    # Tabs
-                    tabsetPanel(
-                      id = "life_expect_tabs",
-
-                      tabPanel(
-                        "Plot",
-                        tags$h3(class = "govuk-heading-m",
-                                "GDP per capita and life expectancy"),
-                        textOutput("life_exp_gdp_subtitle"),
-                        plotly::plotlyOutput("life_exp_scatter_plot", height = 520),
-                        tags$p("Data source: Gapminder")
+                    tags$div(
+                      class = "filter-card__body",
+                      selectizeInput(
+                        "scatter_year", "Year",
+                        choices = .years,
+                        selected = max(.years),
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
                       ),
-
-                      tabPanel(
-                        "Data table",
-                        div(
-                          class = "govuk-tabs__panel",
-                          tags$h3(
-                            class = "govuk-heading-m",
-                            "Life expectancy vs GDP per capita"
-                          ),
-                          textOutput("year_life_exp_gdp"),
-                          # Table
-                          uiOutput("life_exp_gdp_table"),
-                          tags$p("Data source: Gapminder")
-                        )
+                      selectizeInput(
+                        "scatter_continent", "Continent",
+                        choices = c("All" = "All", stats::setNames(as.character(.continents),
+                                                                   as.character(.continents))),
+                        selected = "All",
+                        multiple = TRUE,
+                        options = list(maxItems = 1, plugins = list("remove_button"))
                       )
                     )
-                  )
-                )
-
+                  ),
 
               )
             ),
 
             shinyGovstyle::footer(full = TRUE)
+
+                    tabPanel(
+                      "Data table",
+                      div(
+                        class = "govuk-tabs__panel",
+                        tags$h3(
+                          class = "govuk-heading-m",
+                          "Life expectancy vs GDP per capita"
+                        ),
+                        textOutput("year_life_exp_gdp"),
+                        # Table
+                        uiOutput("life_exp_gdp_table"),
+                        tags$p("Data source: Gapminder")
+                      )
+                    )
+                  )
+                )
+              )
+
+
+            )
+          ),
+
+          shinyGovstyle::footer(full = TRUE)
 
 
 
