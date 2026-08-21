@@ -126,18 +126,10 @@ app_ui <- function(request) {
                     )
                   ),
 
-                  # Tabs
-                  tabsetPanel(
-                    id = "life_expect_tabs",
+              )
+            ),
 
-                    tabPanel(
-                      "Plot",
-                      tags$h3(class = "govuk-heading-m",
-                              "GDP per capita and life expectancy"),
-                      textOutput("life_exp_gdp_subtitle"),
-                      plotly::plotlyOutput("life_exp_scatter_plot", height = 520),
-                      tags$p("Data source: Gapminder")
-                    ),
+            shinyGovstyle::footer(full = TRUE)
 
                     tabPanel(
                       "Data table",
